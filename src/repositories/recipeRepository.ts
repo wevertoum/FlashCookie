@@ -5,8 +5,8 @@
  */
 
 import { StorageKeys, storageHelpers } from '../storage/mmkv';
-import { getAllStockItems } from './stockRepository';
 import type { Recipe, RecipeIngredient } from '../types';
+import { getAllStockItems } from './stockRepository';
 
 /**
  * Generate simple UUID (for MVP)
@@ -45,9 +45,10 @@ export function getRecipesByIds(ids: string[]): Recipe[] {
  * Validate recipe ingredients
  * RF-025: Validate that all ingredients reference existing stock items
  */
-export function validateRecipeIngredients(
-  ingredients: RecipeIngredient[],
-): { valid: boolean; message?: string } {
+export function validateRecipeIngredients(ingredients: RecipeIngredient[]): {
+  valid: boolean;
+  message?: string;
+} {
   const stockItems = getAllStockItems();
 
   if (stockItems.length === 0) {
@@ -58,7 +59,6 @@ export function validateRecipeIngredients(
     };
   }
 
-  // Check if all itemEstoqueId references exist
   for (const ingredient of ingredients) {
     const stockItem = stockItems.find(
       item => item.id === ingredient.itemEstoqueId,
@@ -71,13 +71,13 @@ export function validateRecipeIngredients(
     }
   }
 
-  // Check for duplicate ingredients (same itemEstoqueId)
   const itemIds = ingredients.map(ing => ing.itemEstoqueId);
   const uniqueItemIds = new Set(itemIds);
   if (itemIds.length !== uniqueItemIds.size) {
     return {
       valid: false,
-      message: 'Não é permitido adicionar o mesmo ingrediente duas vezes na receita.',
+      message:
+        'Não é permitido adicionar o mesmo ingrediente duas vezes na receita.',
     };
   }
 
@@ -93,18 +93,15 @@ export function createRecipe(
   rendimento: number,
   ingredientes: RecipeIngredient[],
 ): Recipe {
-  // RF-025: Validate ingredients
   const validation = validateRecipeIngredients(ingredientes);
   if (!validation.valid) {
     throw new Error(validation.message || 'Ingredientes inválidos');
   }
 
-  // RF-025: Validate at least one ingredient
   if (ingredientes.length === 0) {
     throw new Error('Adicione pelo menos um ingrediente à receita');
   }
 
-  // Validate rendimento is positive
   if (rendimento <= 0) {
     throw new Error('O rendimento deve ser um número positivo');
   }
@@ -134,18 +131,15 @@ export function createRecipe(
  * RF-027: Update existing recipe
  */
 export function updateRecipe(recipe: Recipe): Recipe {
-  // RF-025: Validate ingredients
   const validation = validateRecipeIngredients(recipe.ingredientes);
   if (!validation.valid) {
     throw new Error(validation.message || 'Ingredientes inválidos');
   }
 
-  // RF-025: Validate at least one ingredient
   if (recipe.ingredientes.length === 0) {
     throw new Error('Adicione pelo menos um ingrediente à receita');
   }
 
-  // Validate rendimento is positive
   if (recipe.rendimento <= 0) {
     throw new Error('O rendimento deve ser um número positivo');
   }
@@ -194,4 +188,3 @@ export const RecipeRepository = {
   updateRecipe,
   deleteRecipe,
 };
-
