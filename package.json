@@ -21,6 +21,8 @@
     "openai": "^6.10.0",
     "react": "19.1.1",
     "react-native": "0.82.1",
+    "react-native-audio-recorder-player": "^4.5.0",
+    "react-native-fs": "^2.20.0",
     "react-native-image-picker": "^8.2.1",
     "react-native-image-resizer": "^1.4.5",
     "react-native-mmkv": "^4.1.0",

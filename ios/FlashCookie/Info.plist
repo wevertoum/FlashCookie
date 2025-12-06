@@ -39,6 +39,8 @@
 	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Este app precisa acessar a galeria para selecionar fotos de notas fiscais</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Este app precisa acessar o microfone para gravar comandos de voz para saída de estoque</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
