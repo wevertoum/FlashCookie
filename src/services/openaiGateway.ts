@@ -24,7 +24,7 @@ const WHISPER_MODEL = 'whisper-1';
 
 // Token Limits
 const MAX_TOKENS_INVOICE = 2000;
-const MAX_TOKENS_AUDIO = 1000;
+const MAX_TOKENS_AUDIO = 2000;
 const MAX_TOKENS_PRODUCTION = 2000;
 
 // Audio Configuration
@@ -85,16 +85,33 @@ Apenas retorne o JSON, sem texto adicional.`;
 };
 
 const getAudioExtractionPrompt = (transcriptionText: string): string => {
-  return `Extraia os itens e quantidades mencionados neste texto sobre uso de ingredientes.
+  return `Você é um assistente especializado em extrair ingredientes e quantidades de receitas culinárias.
+
+IMPORTANTE: Extraia TODOS os ingredientes e quantidades mencionados no texto. Não deixe nenhum de fora.
 
 ${UNIT_DESCRIPTIONS}
 
-Exemplo: 'vou usar 2kg de farinha e 500g de açúcar' deve retornar: [{"nome": "farinha", "quantidade": 2, "unidade": "kg"}, {"nome": "açúcar", "quantidade": 500, "unidade": "g"}]
+INSTRUÇÕES:
+- Analise o texto cuidadosamente e identifique TODOS os ingredientes mencionados
+- Para cada ingrediente, identifique sua quantidade e unidade de medida
+- Retorne um array JSON com TODOS os itens encontrados
+- Se o texto mencionar múltiplos ingredientes, todos devem aparecer no resultado
 
-Retorne em formato JSON: [{"nome": "...", "quantidade": ..., "unidade": "..."}]. 
-Apenas retorne o JSON, sem texto adicional.
+EXEMPLOS:
+Texto: "vou usar 2kg de farinha e 500g de açúcar"
+Resultado: [{"nome": "farinha", "quantidade": 2, "unidade": "kg"}, {"nome": "açúcar", "quantidade": 500, "unidade": "g"}]
 
-Texto: ${transcriptionText}`;
+Texto: "preciso de 1 litro de leite, 3 ovos e 250 gramas de manteiga"
+Resultado: [{"nome": "leite", "quantidade": 1, "unidade": "L"}, {"nome": "ovos", "quantidade": 3, "unidade": "un"}, {"nome": "manteiga", "quantidade": 250, "unidade": "g"}]
+
+Texto: "500g de farinha, 200g de açúcar, 100g de manteiga, 2 ovos"
+Resultado: [{"nome": "farinha", "quantidade": 500, "unidade": "g"}, {"nome": "açúcar", "quantidade": 200, "unidade": "g"}, {"nome": "manteiga", "quantidade": 100, "unidade": "g"}, {"nome": "ovos", "quantidade": 2, "unidade": "un"}]
+
+Retorne APENAS o JSON em formato de array: [{"nome": "...", "quantidade": ..., "unidade": "..."}]
+Não adicione explicações, comentários ou texto adicional. Apenas o JSON.
+
+Texto a analisar:
+${transcriptionText}`;
 };
 
 const getProductionPotentialPrompt = (
@@ -111,7 +128,42 @@ E isso que tenho no estoque: ${JSON.stringify(stock, null, 2)}
 
 Me fale quanto eu posso produzir de cada uma delas baseado no estoque disponível.
 
-Retorne em formato JSON estruturado: {"potencialProdutivo": [{"receita": "nome da receita", "quantidadePossivel": X, "unidade": "unidades"}]}
+IMPORTANTE: Para cada receita, identifique se há ingredientes faltando ou em quantidade insuficiente que impedem ou limitam a produção. 
+- Se um ingrediente necessário não está presente no estoque, adicione um alerta do tipo "ingrediente_faltando"
+- Se um ingrediente está presente mas em quantidade insuficiente para produzir a quantidade máxima possível, adicione um alerta do tipo "ingrediente_insuficiente"
+
+Cada alerta deve conter:
+- tipo: "ingrediente_faltando" ou "ingrediente_insuficiente"
+- ingrediente: nome do ingrediente
+- quantidadeNecessaria: quantidade necessária para a receita (do campo ingredientes da receita)
+- unidadeNecessaria: unidade da quantidade necessária
+- quantidadeDisponivel: quantidade disponível no estoque (0 se não estiver presente)
+- unidadeDisponivel: unidade da quantidade disponível
+- mensagem: mensagem explicativa sobre o problema (ex: "Faltam 500g de açúcar para completar a receita")
+
+Retorne em formato JSON estruturado: 
+{
+  "potencialProdutivo": [
+    {
+      "receita": "nome da receita",
+      "quantidadePossivel": X,
+      "unidade": "unidades",
+      "alertas": [
+        {
+          "tipo": "ingrediente_faltando",
+          "ingrediente": "nome do ingrediente",
+          "quantidadeNecessaria": X,
+          "unidadeNecessaria": "unidade",
+          "quantidadeDisponivel": 0,
+          "unidadeDisponivel": "unidade",
+          "mensagem": "mensagem explicativa"
+        }
+      ]
+    }
+  ]
+}
+
+O campo "alertas" é opcional - inclua apenas se houver ingredientes faltando ou insuficientes.
 
 Apenas retorne o JSON, sem texto adicional.`;
 };
@@ -304,8 +356,15 @@ export async function extractItemsFromAudio(
     const text = transcriptionData.text || '';
 
     console.log('🎤 [OPENAI] Transcrição do áudio:', text);
+    console.log('📏 [OPENAI] Tamanho da transcrição:', text.length, 'caracteres');
+    console.log('📏 [OPENAI] Número de palavras:', text.split(/\s+/).length);
+    
+    if (!text || text.trim().length === 0) {
+      throw new Error('Transcrição de áudio vazia. Tente gravar novamente.');
+    }
 
     const prompt = getAudioExtractionPrompt(text);
+    console.log('📝 [OPENAI] Prompt completo sendo enviado (primeiros 500 caracteres):', prompt.substring(0, 500));
 
     const chatResponse = await fetch(CHAT_COMPLETIONS_ENDPOINT, {
       method: 'POST',
@@ -353,6 +412,13 @@ export async function extractItemsFromAudio(
     const content = chatData.choices?.[0]?.message?.content || '';
 
     console.log('🤖 [OPENAI] Resposta completa da IA:', content);
+    console.log('📏 [OPENAI] Tamanho da resposta:', content.length, 'caracteres');
+
+    // Check if transcription seems incomplete (too short for multiple items)
+    const wordCount = text.split(/\s+/).length;
+    if (wordCount < 10) {
+      console.warn('⚠️ [OPENAI] Transcrição parece curta (', wordCount, 'palavras). Verifique se todos os ingredientes foram capturados.');
+    }
 
     const jsonMatch = content.match(JSON_ARRAY_PATTERN);
     if (jsonMatch) {
@@ -366,6 +432,11 @@ export async function extractItemsFromAudio(
         '📦 [OPENAI] Itens brutos extraídos:',
         JSON.stringify(rawItems, null, 2),
       );
+      console.log('📊 [OPENAI] Total de itens extraídos:', rawItems.length);
+      
+      if (rawItems.length === 1 && wordCount > 15) {
+        console.warn('⚠️ [OPENAI] Apenas 1 item extraído, mas a transcrição tem', wordCount, 'palavras. Pode haver mais itens que não foram capturados.');
+      }
 
       const items: ExtractedInvoiceItem[] = rawItems
         .filter(item => item.nome && item.quantidade && item.unidade)
@@ -415,10 +486,37 @@ export async function calculateProductionPotential(
     receita: string;
     quantidadePossivel: number;
     unidade: Unit;
+    alertas?: Array<{
+      tipo: 'ingrediente_faltando' | 'ingrediente_insuficiente';
+      ingrediente: string;
+      quantidadeNecessaria: number;
+      unidadeNecessaria: Unit;
+      quantidadeDisponivel: number;
+      unidadeDisponivel: Unit;
+      mensagem: string;
+    }>;
   }>
 > {
   try {
+    console.log('📊 [PRODUCTION POTENTIAL] Iniciando cálculo de potencial produtivo');
+    console.log('📋 [PRODUCTION POTENTIAL] Receitas recebidas:', JSON.stringify(recipes, null, 2));
+    console.log('📦 [PRODUCTION POTENTIAL] Estoque recebido:', JSON.stringify(stock, null, 2));
+
     const prompt = getProductionPotentialPrompt(recipes, stock);
+    console.log('💬 [PRODUCTION POTENTIAL] Prompt sendo enviado para IA:');
+    console.log(prompt);
+
+    const requestBody = {
+      model: GPT_MODEL,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      max_tokens: MAX_TOKENS_PRODUCTION,
+    };
+    console.log('📤 [PRODUCTION POTENTIAL] Request body:', JSON.stringify(requestBody, null, 2));
 
     const response = await fetch(CHAT_COMPLETIONS_ENDPOINT, {
       method: 'POST',
@@ -426,17 +524,10 @@ export async function calculateProductionPotential(
         'Content-Type': CONTENT_TYPE_JSON,
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
-      body: JSON.stringify({
-        model: GPT_MODEL,
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        max_tokens: MAX_TOKENS_PRODUCTION,
-      }),
+      body: JSON.stringify(requestBody),
     });
+
+    console.log('📥 [PRODUCTION POTENTIAL] Status da resposta:', response.status, response.statusText);
 
     if (!response.ok) {
       let errorMessage = `OpenAI API error: ${response.status} ${response.statusText}`;
@@ -464,24 +555,60 @@ export async function calculateProductionPotential(
       }>;
     };
     const content = data.choices?.[0]?.message?.content || '';
+    console.log('📨 [PRODUCTION POTENTIAL] Resposta completa da IA:');
+    console.log(content);
 
     const jsonMatch = content.match(JSON_OBJECT_PATTERN);
     if (jsonMatch) {
-      const result = JSON.parse(jsonMatch[0]) as {
+      console.log('✅ [PRODUCTION POTENTIAL] JSON encontrado na resposta:', jsonMatch[0]);
+      
+      const parsedResult = JSON.parse(jsonMatch[0]) as {
         potencialProdutivo: Array<{
           receita: string;
           quantidadePossivel: number;
           unidade: string;
+          alertas?: Array<{
+            tipo: 'ingrediente_faltando' | 'ingrediente_insuficiente';
+            ingrediente: string;
+            quantidadeNecessaria: number;
+            unidadeNecessaria: string;
+            quantidadeDisponivel: number;
+            unidadeDisponivel: string;
+            mensagem: string;
+          }>;
         }>;
       };
+      
+      console.log('🔍 [PRODUCTION POTENTIAL] Resultado parseado:', JSON.stringify(parsedResult, null, 2));
 
-      return (result.potencialProdutivo || []).map(item => ({
+      const roundNumber = (value: number): number => {
+        if (Number.isInteger(value)) {
+          return value;
+        }
+        return Math.round(value * 10000) / 10000;
+      };
+
+      const processedResult = (parsedResult.potencialProdutivo || []).map(item => ({
         receita: item.receita,
-        quantidadePossivel: item.quantidadePossivel,
+        quantidadePossivel: roundNumber(item.quantidadePossivel),
         unidade: normalizeUnit(item.unidade),
+        alertas: item.alertas?.map(alerta => ({
+          ...alerta,
+          quantidadeNecessaria: roundNumber(alerta.quantidadeNecessaria),
+          quantidadeDisponivel: roundNumber(alerta.quantidadeDisponivel),
+          unidadeNecessaria: normalizeUnit(alerta.unidadeNecessaria),
+          unidadeDisponivel: normalizeUnit(alerta.unidadeDisponivel),
+        })),
       }));
+
+      console.log('✨ [PRODUCTION POTENTIAL] Resultado processado e normalizado:', JSON.stringify(processedResult, null, 2));
+      console.log('📊 [PRODUCTION POTENTIAL] Total de receitas processadas:', processedResult.length);
+
+      return processedResult;
     }
 
+    console.error('❌ [PRODUCTION POTENTIAL] JSON não encontrado na resposta da IA');
+    console.error('📄 [PRODUCTION POTENTIAL] Conteúdo recebido:', content);
     throw new Error(ERROR_MESSAGES.INVALID_RESPONSE_FORMAT);
   } catch (error) {
     console.error('Error calculating production potential:', error);

@@ -11,6 +11,7 @@ import { HomeScreen } from "../screens/HomeScreen";
 import { InputScreen } from "../screens/InputScreen";
 import { LoginScreen } from "../screens/LoginScreen";
 import { OutputScreen } from "../screens/OutputScreen";
+import { PossibleItemsScreen } from "../screens/PossibleItemsScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
 import { StockScreen } from "../screens/StockScreen";
 
@@ -94,6 +95,16 @@ const MainStack = ({ onLogout }: { onLogout: () => void }) => {
 				{(props) => (
 					<OutputScreen
 						{...(props as NativeStackScreenProps<RootStackParamList, "Output">)}
+					/>
+				)}
+			</Stack.Screen>
+			<Stack.Screen name="ItensPossiveis">
+				{(props) => (
+					<PossibleItemsScreen
+						{...(props as NativeStackScreenProps<
+							RootStackParamList,
+							"ItensPossiveis"
+						>)}
 					/>
 				)}
 			</Stack.Screen>

@@ -76,7 +76,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 						</Button>
 
 						<Button
-							onPress={() => navigation.navigate("ItensPossiveis")}
+							onPress={() => {
+								console.log('🏠 [HOME] Navegando para tela de Itens Possíveis');
+								navigation.navigate("ItensPossiveis");
+							}}
 							size="lg"
 							variant="solid"
 						>

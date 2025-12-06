@@ -151,8 +151,48 @@ export function findSimilarItems(
 }
 
 /**
+ * Calculate match quality score considering keyword coverage and specificity
+ */
+function calculateMatchQuality(
+  searchName: string,
+  itemName: string,
+  baseSimilarity: number,
+): number {
+  const searchKeywords = getKeywords(searchName);
+  const itemKeywords = getKeywords(itemName);
+  
+  // Count how many search keywords match item keywords
+  let matchedKeywords = 0;
+  for (const searchKeyword of searchKeywords) {
+    if (itemKeywords.some(itemKeyword => 
+      itemKeyword.includes(searchKeyword) || searchKeyword.includes(itemKeyword)
+    )) {
+      matchedKeywords++;
+    }
+  }
+  
+  // Keyword coverage score (0-1)
+  const keywordCoverage = searchKeywords.length > 0 
+    ? matchedKeywords / searchKeywords.length 
+    : 0;
+  
+  // Prefer matches with more keywords matched
+  // Prefer matches that contain the full search term
+  const normalizedSearch = normalizeString(searchName);
+  const normalizedItem = normalizeString(itemName);
+  const fullMatchBonus = normalizedItem.includes(normalizedSearch) ? 0.15 : 0;
+  
+  // Prefer longer matches when similarity is equal (more specific)
+  const lengthBonus = normalizedItem.length >= normalizedSearch.length ? 0.05 : 0;
+  
+  // Weighted combination: base similarity (70%) + keyword coverage (20%) + bonuses (10%)
+  return baseSimilarity * 0.7 + keywordCoverage * 0.2 + fullMatchBonus + lengthBonus;
+}
+
+/**
  * Find the most similar item
  * Returns the best match if similarity > threshold, otherwise null
+ * Prefers matches with better keyword coverage and specificity
  */
 export function findBestMatch(
   searchName: string,
@@ -164,19 +204,36 @@ export function findBestMatch(
   console.log('🔍 [FUZZY SEARCH] Threshold:', threshold);
   console.log('🔍 [FUZZY SEARCH] Itens no estoque:', stockItems.map(i => i.nome));
   
+  // First get all matches above threshold
   const matches = findSimilarItems(searchName, stockItems, threshold);
   
-  console.log('🔍 [FUZZY SEARCH] Matches encontrados:', matches.length);
-  matches.forEach((match, index) => {
-    console.log(`  ${index + 1}. "${match.item.nome}" - Similaridade: ${(match.similarity * 100).toFixed(2)}%`);
+  if (matches.length === 0) {
+    console.log('❌ [FUZZY SEARCH] Nenhum match encontrado acima do threshold');
+    return null;
+  }
+  
+  // Calculate quality score for each match and sort
+  const matchesWithQuality = matches.map(match => ({
+    ...match,
+    quality: calculateMatchQuality(searchName, match.item.nome, match.similarity),
+  }));
+  
+  // Sort by quality (best first), then by similarity as tiebreaker
+  matchesWithQuality.sort((a, b) => {
+    if (Math.abs(a.quality - b.quality) < 0.01) {
+      // If quality is very close, use similarity
+      return b.similarity - a.similarity;
+    }
+    return b.quality - a.quality;
   });
   
-  const result = matches.length > 0 ? matches[0].item : null;
-  if (result) {
-    console.log('✅ [FUZZY SEARCH] Melhor match:', result.nome);
-  } else {
-    console.log('❌ [FUZZY SEARCH] Nenhum match encontrado acima do threshold');
-  }
+  console.log('🔍 [FUZZY SEARCH] Matches encontrados:', matches.length);
+  matchesWithQuality.forEach((match, index) => {
+    console.log(`  ${index + 1}. "${match.item.nome}" - Similaridade: ${(match.similarity * 100).toFixed(2)}% - Qualidade: ${(match.quality * 100).toFixed(2)}%`);
+  });
+  
+  const result = matchesWithQuality[0].item;
+  console.log('✅ [FUZZY SEARCH] Melhor match:', result.nome);
   
   return result;
 }

@@ -35,18 +35,62 @@ export interface ExtractedInvoiceItem {
   unidade: Unit;
 }
 
+/**
+ * RF-026: Recipe interface
+ * Structure matches requirements document
+ */
 export interface Recipe {
   id: string;
-  name: string;
-  ingredients: RecipeIngredient[];
-  yield: number; // Quantidade de cookies produzidos
+  nome: string;
+  rendimento: number; // Quantidade de unidades produzidas
+  ingredientes: RecipeIngredient[];
   createdAt: string;
+  updatedAt: string;
 }
 
+/**
+ * RF-026: Recipe ingredient interface
+ * Each ingredient references a stock item via itemEstoqueId
+ */
 export interface RecipeIngredient {
-  stockItemId: string;
-  quantity: number;
-  unit: Unit;
+  itemEstoqueId: string; // Reference to stock item
+  nome: string; // Copied from stock item for display
+  quantidade: number;
+  unidade: Unit; // Must match stock item unit
+}
+
+/**
+ * RF-032, RF-033: Production potential result from AI
+ */
+export interface ProductionPotentialResult {
+  receita: string;
+  quantidadePossivel: number;
+  unidade: Unit;
+  alertas?: Array<{
+    tipo: 'ingrediente_faltando' | 'ingrediente_insuficiente';
+    ingrediente: string;
+    quantidadeNecessaria: number;
+    unidadeNecessaria: Unit;
+    quantidadeDisponivel: number;
+    unidadeDisponivel: Unit;
+    mensagem: string;
+  }>;
+}
+
+/**
+ * RF-033: Possible items output structure
+ */
+export interface PossibleItemsOutput {
+  timestamp: string;
+  resultado: ProductionPotentialResult[];
+}
+
+/**
+ * RF-033: Possible items storage structure
+ */
+export interface PossibleItemsStorage {
+  receitasSelecionadas: string[]; // Array of recipe IDs
+  outputIA?: PossibleItemsOutput;
 }
 
 export interface StockEntry {
