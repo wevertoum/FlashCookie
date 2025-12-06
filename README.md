@@ -1,97 +1,86 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# FlashCookie
 
-# Getting Started
+Aplicativo mobile para gestão simplificada de estoque de matéria-prima de uma pequena fábrica de cookies, utilizando inteligência artificial para facilitar a entrada e saída de produtos através de processamento de imagem (notas fiscais) e áudio (comandos de voz).
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 🚀 Tecnologias
 
-## Step 1: Start Metro
+- **React Native** 0.82.1 (nativo, sem Expo)
+- **TypeScript**
+- **MMKV** - Armazenamento local rápido e eficiente
+- **Gluestack UI** - Componentes de UI modernos
+- **OpenAI API** - Processamento de imagem (OCR) e áudio (Whisper)
+- **React Native Splash Screen** - Splash screen personalizada
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## 📋 Pré-requisitos
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- Node.js >= 20
+- pnpm (gerenciador de pacotes)
+- Android Studio (para desenvolvimento Android)
+- JDK 17 ou superior
 
-```sh
-# Using npm
-npm start
+## 🛠️ Instalação
 
-# OR using Yarn
-yarn start
+1. Clone o repositório:
+```bash
+git clone <repository-url>
+cd FlashCookie
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+2. Instale as dependências:
+```bash
+pnpm install
 ```
 
-### iOS
+3. Configure as variáveis de ambiente:
+   - Crie um arquivo `.env` na raiz do projeto
+   - Adicione sua chave da API OpenAI:
+   ```
+   OPENAI_API_KEY=sua_chave_aqui
+   ```
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+4. Para Android:
+```bash
+pnpm android
 ```
 
-Then, and every time you update your native dependencies, run:
+## 📱 Estrutura do Projeto
 
-```sh
-bundle exec pod install
+```
+FlashCookie/
+├── android/              # Código nativo Android
+├── ios/                  # Código nativo iOS
+├── src/
+│   ├── components/       # Componentes reutilizáveis
+│   ├── screens/          # Telas do aplicativo
+│   ├── services/         # Serviços (OpenAI, etc.)
+│   ├── storage/          # Configuração MMKV
+│   ├── types/            # Definições TypeScript
+│   └── utils/            # Funções utilitárias
+└── App.tsx               # Componente principal
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 🎨 Recursos Implementados
 
-```sh
-# Using npm
-npm run ios
+- ✅ Splash Screen personalizada com logo FlashCookie
+- ✅ Ícone do aplicativo configurado
+- ✅ Configuração básica de MMKV para armazenamento
+- ✅ Integração com OpenAI API (OCR e Whisper)
+- ✅ Estrutura de pastas seguindo boas práticas
+- ✅ TypeScript configurado
 
-# OR using Yarn
-yarn ios
-```
+## 📝 Próximos Passos
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+- [ ] Implementar autenticação de usuários
+- [ ] Tela de cadastro e login
+- [ ] Funcionalidade de leitura de nota fiscal
+- [ ] Funcionalidade de comando de voz
+- [ ] Gestão de estoque
+- [ ] Visualização de capacidade produtiva
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## 🔐 Segurança
 
-## Step 3: Modify your app
+⚠️ **IMPORTANTE**: Por segurança, não exponha sua chave da API OpenAI diretamente no código do app. Em produção, considere usar um backend intermediário para fazer as chamadas à API.
 
-Now that you have successfully run the app, let's make changes!
+## 📄 Licença
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Este projeto é parte de um projeto acadêmico integrador.
