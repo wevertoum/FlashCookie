@@ -60,6 +60,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 						</Button>
 
 						<Button
+							onPress={() => navigation.navigate("Stock")}
+							size="lg"
+							variant="solid"
+						>
+							<ButtonText>Ver Estoque</ButtonText>
+						</Button>
+
+						<Button
 							onPress={() => navigation.navigate("Output")}
 							size="lg"
 							variant="solid"
