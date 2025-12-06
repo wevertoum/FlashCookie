@@ -1,5 +1,18 @@
 // Tipos principais do aplicativo
 
+/**
+ * Unit of measurement enum
+ * RB-001: Supported units
+ */
+export enum Unit {
+  KG = 'kg',
+  G = 'g',
+  L = 'L',
+  ML = 'mL',
+  UN = 'un',
+  DUZIA = 'duzia',
+}
+
 export interface User {
   id: string;
   email: string;
@@ -9,11 +22,17 @@ export interface User {
 
 export interface StockItem {
   id: string;
-  name: string;
-  quantity: number;
-  unit: string; // kg, g, L, ml, etc.
-  minQuantity?: number;
-  lastUpdated: string;
+  nome: string;
+  quantidade: number;
+  unidade: Unit;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExtractedInvoiceItem {
+  nome: string;
+  quantidade: number;
+  unidade: Unit;
 }
 
 export interface Recipe {
@@ -27,7 +46,7 @@ export interface Recipe {
 export interface RecipeIngredient {
   stockItemId: string;
   quantity: number;
-  unit: string;
+  unit: Unit;
 }
 
 export interface StockEntry {
