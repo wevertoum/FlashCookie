@@ -10,6 +10,7 @@ import { UserRepository } from "../repositories/userRepository";
 import { HomeScreen } from "../screens/HomeScreen";
 import { InputScreen } from "../screens/InputScreen";
 import { LoginScreen } from "../screens/LoginScreen";
+import { OutputScreen } from "../screens/OutputScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
 import { StockScreen } from "../screens/StockScreen";
 
@@ -89,7 +90,13 @@ const MainStack = ({ onLogout }: { onLogout: () => void }) => {
 					/>
 				)}
 			</Stack.Screen>
-			{/* Other screens will be added here */}
+			<Stack.Screen name="Output">
+				{(props) => (
+					<OutputScreen
+						{...(props as NativeStackScreenProps<RootStackParamList, "Output">)}
+					/>
+				)}
+			</Stack.Screen>
 		</Stack.Navigator>
 	);
 };
