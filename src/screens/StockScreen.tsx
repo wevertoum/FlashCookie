@@ -14,10 +14,19 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { RefreshControl, ScrollView, StyleSheet } from "react-native";
+import {
+	Alert,
+	RefreshControl,
+	ScrollView,
+	StyleSheet,
+	TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { RootStackParamList } from "../navigation/AppNavigator";
-import { getAllStockItems } from "../repositories/stockRepository";
+import {
+	deleteStockItem,
+	getAllStockItems,
+} from "../repositories/stockRepository";
 import { type StockItem, Unit } from "../types";
 
 type StockScreenProps = NativeStackScreenProps<RootStackParamList, "Stock">;
@@ -62,6 +71,31 @@ export const StockScreen: React.FC<StockScreenProps> = ({ navigation }) => {
 			month: "2-digit",
 			year: "numeric",
 		});
+	};
+
+	const handleDeleteItem = (item: StockItem) => {
+		Alert.alert(
+			"Remover Item",
+			`Deseja realmente remover "${item.nome}" do estoque?`,
+			[
+				{
+					text: "Cancelar",
+					style: "cancel",
+				},
+				{
+					text: "Remover",
+					style: "destructive",
+					onPress: () => {
+						deleteStockItem(item.id);
+						const items = getAllStockItems();
+						const sortedItems = [...items].sort((a, b) =>
+							a.nome.localeCompare(b.nome),
+						);
+						setStockItems(sortedItems);
+					},
+				},
+			],
+		);
 	};
 
 	return (
@@ -144,6 +178,12 @@ export const StockScreen: React.FC<StockScreenProps> = ({ navigation }) => {
 													</Text>
 												</HStack>
 											</VStack>
+											<TouchableOpacity
+												onPress={() => handleDeleteItem(item)}
+												style={styles.deleteButton}
+											>
+												<Text style={styles.deleteButtonText}>×</Text>
+											</TouchableOpacity>
 										</HStack>
 										<HStack space="md" alignItems="center">
 											<Text size="xs" color="$gray500">
@@ -173,5 +213,20 @@ const styles = StyleSheet.create({
 	},
 	scrollContent: {
 		paddingVertical: 20,
+	},
+	deleteButton: {
+		width: 32,
+		height: 32,
+		borderRadius: 16,
+		backgroundColor: "#EF4444",
+		justifyContent: "center",
+		alignItems: "center",
+		marginLeft: 8,
+	},
+	deleteButtonText: {
+		color: "#FFFFFF",
+		fontSize: 24,
+		fontWeight: "bold",
+		lineHeight: 28,
 	},
 });

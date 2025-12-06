@@ -530,7 +530,7 @@ export const InputScreen: React.FC<InputScreenProps> = ({ navigation }) => {
 									size="md"
 									variant="outline"
 								>
-									<ButtonText>Adicionar Item</ButtonText>
+									<ButtonText>Adicionar Item Manualmente</ButtonText>
 								</Button>
 
 								<Button
