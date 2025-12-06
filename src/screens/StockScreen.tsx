@@ -11,9 +11,10 @@ import {
 	Text,
 	VStack,
 } from "@gluestack-ui/themed";
+import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	Alert,
 	RefreshControl,
@@ -44,23 +45,25 @@ export const StockScreen: React.FC<StockScreenProps> = ({ navigation }) => {
 	const [stockItems, setStockItems] = useState<StockItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
-	useEffect(() => {
-		const loadStockItems = () => {
-			const items = getAllStockItems();
-			const sortedItems = [...items].sort((a, b) =>
-				a.nome.localeCompare(b.nome),
-			);
-			setStockItems(sortedItems);
-		};
-
-		loadStockItems();
-	}, []);
-
-	const handleRefresh = () => {
-		setIsRefreshing(true);
+	const loadStockItems = useCallback(() => {
 		const items = getAllStockItems();
 		const sortedItems = [...items].sort((a, b) => a.nome.localeCompare(b.nome));
 		setStockItems(sortedItems);
+	}, []);
+
+	useEffect(() => {
+		loadStockItems();
+	}, [loadStockItems]);
+
+	useFocusEffect(
+		useCallback(() => {
+			loadStockItems();
+		}, [loadStockItems]),
+	);
+
+	const handleRefresh = () => {
+		setIsRefreshing(true);
+		loadStockItems();
 		setIsRefreshing(false);
 	};
 
@@ -113,7 +116,7 @@ export const StockScreen: React.FC<StockScreenProps> = ({ navigation }) => {
 								Estoque
 							</Heading>
 							<Button
-								onPress={() => navigation.goBack()}
+								onPress={() => navigation.navigate("Home")}
 								size="sm"
 								variant="outline"
 							>
