@@ -10,6 +10,7 @@ import {
 	FormControlLabel,
 	FormControlLabelText,
 	Heading,
+	HStack,
 	Input,
 	InputField,
 	Select,
@@ -379,9 +380,20 @@ export const InputScreen: React.FC<InputScreenProps> = ({ navigation }) => {
 		<SafeAreaView style={styles.container} edges={["top", "bottom"]}>
 			<ScrollView contentContainerStyle={styles.scrollContent}>
 				<VStack space="xl" width="100%" padding={24}>
-					<Heading size="2xl" color="$primary500">
-						Entrada de Estoque
-					</Heading>
+					<VStack space="md">
+						<HStack justifyContent="space-between" alignItems="center">
+							<Heading size="2xl" color="$primary500">
+								Entrada de Estoque
+							</Heading>
+							<Button
+								onPress={() => navigation.navigate("Home")}
+								size="sm"
+								variant="outline"
+							>
+								<ButtonText>Voltar</ButtonText>
+							</Button>
+						</HStack>
+					</VStack>
 
 					{!imageUri && items.length === 0 && (
 						<VStack space="md" width="100%">
