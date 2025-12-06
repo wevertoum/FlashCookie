@@ -5,6 +5,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "ios:device": "open ios/FlashCookie.xcworkspace && echo 'Abrindo Xcode. Selecione seu iPhone e pressione Cmd+R para buildar e instalar.'",
+    "ios:build": "cd ios && xcodebuild -workspace FlashCookie.xcworkspace -scheme FlashCookie -configuration Debug -destination 'generic/platform=iOS' -derivedDataPath build",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
@@ -19,6 +21,8 @@
     "openai": "^6.10.0",
     "react": "19.1.1",
     "react-native": "0.82.1",
+    "react-native-image-picker": "^8.2.1",
+    "react-native-image-resizer": "^1.4.5",
     "react-native-mmkv": "^4.1.0",
     "react-native-nitro-modules": "^0.31.10",
     "react-native-safe-area-context": "^5.6.2",
