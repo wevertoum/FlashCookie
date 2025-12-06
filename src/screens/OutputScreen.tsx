@@ -4,7 +4,6 @@
  */
 
 import {
-	Box,
 	Button,
 	ButtonText,
 	FormControl,
@@ -38,6 +37,7 @@ import {
 } from "react-native";
 import AudioRecorderPlayer from "react-native-audio-recorder-player";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ItemToRemoveCard } from "../components/ItemToRemoveCard";
 import type { RootStackParamList } from "../navigation/AppNavigator";
 import {
 	getAllStockItems,
@@ -757,64 +757,13 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 							</Heading>
 
 							{itemsToRemove.map((item) => (
-								<Box
+								<ItemToRemoveCard
 									key={item.id}
-									backgroundColor={item.confirmed ? "$green50" : "$gray100"}
-									borderRadius={8}
-									padding={16}
-									borderWidth={1}
-									borderColor={item.confirmed ? "$green300" : "$gray200"}
-								>
-									<VStack space="sm">
-										<HStack
-											justifyContent="space-between"
-											alignItems="flex-start"
-										>
-											<VStack flex={1} space="xs">
-												<Text size="lg" fontWeight="$bold" color="$gray900">
-													{item.nome}
-												</Text>
-												<Text size="sm" color="$gray700">
-													Remover: {item.quantidadeRemover.toFixed(2)}{" "}
-													{UNIT_LABELS[item.unidadeRemover]}
-												</Text>
-												<Text size="sm" color="$gray700">
-													Atual: {item.quantidadeAtual.toFixed(2)}{" "}
-													{UNIT_LABELS[item.unidadeAtual]}
-												</Text>
-												<Text size="sm" color="$gray700">
-													Restante: {item.quantidadeRestante.toFixed(2)}{" "}
-													{UNIT_LABELS[item.unidadeAtual]}
-												</Text>
-											</VStack>
-											{item.confirmed && (
-												<Text size="sm" color="$green600" fontWeight="$bold">
-													✓ Confirmado
-												</Text>
-											)}
-										</HStack>
-										{!item.confirmed && (
-											<HStack space="sm" width="100%">
-												<Button
-													onPress={() => handleAbortItem(item.id)}
-													size="md"
-													variant="link"
-													flex={1}
-												>
-													<ButtonText>Ignorar</ButtonText>
-												</Button>
-												<Button
-													onPress={() => handleConfirmItem(item.id)}
-													size="md"
-													variant="solid"
-													flex={1}
-												>
-													<ButtonText>Dar Baixa</ButtonText>
-												</Button>
-											</HStack>
-										)}
-									</VStack>
-								</Box>
+									item={item}
+									unitLabels={UNIT_LABELS}
+									onConfirm={handleConfirmItem}
+									onAbort={handleAbortItem}
+								/>
 							))}
 						</VStack>
 					)}

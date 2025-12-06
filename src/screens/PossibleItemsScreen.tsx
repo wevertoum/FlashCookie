@@ -16,15 +16,6 @@ import {
 	HStack,
 	Input,
 	InputField,
-	Select,
-	SelectBackdrop,
-	SelectContent,
-	SelectDragIndicator,
-	SelectDragIndicatorWrapper,
-	SelectInput,
-	SelectItem,
-	SelectPortal,
-	SelectTrigger,
 	Text,
 	VStack,
 } from "@gluestack-ui/themed";
@@ -40,10 +31,13 @@ import {
 	RefreshControl,
 	ScrollView,
 	StyleSheet,
-	TouchableOpacity,
 } from "react-native";
 import AudioRecorderPlayer from "react-native-audio-recorder-player";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AudioRecordingControls } from "../components/AudioRecordingControls";
+import { IngredientFormItem } from "../components/IngredientFormItem";
+import { ProductionPotentialResultCard } from "../components/ProductionPotentialResultCard";
+import { RecipeCard } from "../components/RecipeCard";
 import type { RootStackParamList } from "../navigation/AppNavigator";
 import {
 	clearPossibleItemsData,
@@ -70,6 +64,11 @@ import {
 import type { Recipe, RecipeIngredient, Unit } from "../types";
 import { Unit as UnitEnum } from "../types";
 import { findBestMatch } from "../utils/fuzzySearch";
+import {
+	formatNumber,
+	getCompatibleUnits,
+	UNIT_LABELS,
+} from "../utils/possibleItemsHelpers";
 import { convertUnit } from "../utils/unitConversion";
 
 type PossibleItemsScreenProps = NativeStackScreenProps<
@@ -84,47 +83,6 @@ interface EditableIngredient {
 	quantidade: string;
 	unidade: Unit;
 }
-
-const UNIT_LABELS: Record<Unit, string> = {
-	[UnitEnum.KG]: "kg",
-	[UnitEnum.G]: "g",
-	[UnitEnum.L]: "L",
-	[UnitEnum.ML]: "mL",
-	[UnitEnum.UN]: "un",
-	[UnitEnum.DUZIA]: "duzia",
-};
-
-/**
- * Get compatible units for a given unit (kg↔g, L↔mL)
- */
-const getCompatibleUnits = (unit: Unit): Unit[] => {
-	if (unit === UnitEnum.KG || unit === UnitEnum.G) {
-		return [UnitEnum.KG, UnitEnum.G];
-	}
-	if (unit === UnitEnum.L || unit === UnitEnum.ML) {
-		return [UnitEnum.L, UnitEnum.ML];
-	}
-	return [unit]; // un, duzia - no conversion
-};
-
-const formatNumber = (value: number): string => {
-	if (Number.isNaN(value) || !Number.isFinite(value)) {
-		return "0";
-	}
-
-	if (Number.isInteger(value)) {
-		return value.toString();
-	}
-
-	const rounded = Math.round(value * 1000000) / 1000000;
-	const formatted = rounded.toString();
-
-	if (formatted.includes(".")) {
-		return formatted.replace(/\.?0+$/, "");
-	}
-
-	return formatted;
-};
 
 export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	navigation,
@@ -1009,7 +967,7 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 										size="md"
 										variant="solid"
 									>
-										<ButtonText>Nova Receita</ButtonText>
+										<ButtonText>Cadastrar Nova Receita</ButtonText>
 									</Button>
 									{selectedRecipeIds.length > 0 && (
 										<Button
@@ -1040,96 +998,16 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 								)}
 
 								<VStack space="md" width="100%">
-									{recipes.map((recipe) => {
-										const isSelected = selectedRecipeIds.includes(recipe.id);
-										return (
-											<Box
-												key={recipe.id}
-												backgroundColor={isSelected ? "$primary50" : "$gray100"}
-												borderRadius={8}
-												padding={16}
-												borderWidth={1}
-												borderColor={isSelected ? "$primary300" : "$gray200"}
-											>
-												<VStack space="sm">
-													<HStack
-														justifyContent="space-between"
-														alignItems="flex-start"
-													>
-														<TouchableOpacity
-															style={styles.recipeRow}
-															onPress={() =>
-																handleToggleRecipeSelection(recipe.id)
-															}
-															activeOpacity={0.7}
-														>
-															<VStack flex={1} space="xs">
-																<Text
-																	size="lg"
-																	fontWeight="$bold"
-																	color="$gray900"
-																>
-																	{recipe.nome}
-																</Text>
-																<Text size="sm" color="$gray600">
-																	Rendimento: {recipe.rendimento} unidades
-																</Text>
-																<Text size="sm" color="$gray600">
-																	{recipe.ingredientes.length}{" "}
-																	{recipe.ingredientes.length === 1
-																		? "ingrediente"
-																		: "ingredientes"}
-																</Text>
-															</VStack>
-															<Box
-																width={24}
-																height={24}
-																borderRadius={4}
-																borderWidth={2}
-																borderColor={
-																	isSelected ? "$primary500" : "$gray400"
-																}
-																backgroundColor={
-																	isSelected ? "$primary500" : "transparent"
-																}
-																justifyContent="center"
-																alignItems="center"
-															>
-																{isSelected && (
-																	<Text
-																		color="white"
-																		fontSize={16}
-																		fontWeight="bold"
-																	>
-																		✓
-																	</Text>
-																)}
-															</Box>
-														</TouchableOpacity>
-													</HStack>
-													<HStack space="sm">
-														<Button
-															onPress={() => handleEditRecipe(recipe)}
-															size="sm"
-															variant="outline"
-															flex={1}
-														>
-															<ButtonText>Editar</ButtonText>
-														</Button>
-														<Button
-															onPress={() => handleDeleteRecipe(recipe)}
-															size="sm"
-															variant="outline"
-															action="negative"
-															flex={1}
-														>
-															<ButtonText>Excluir</ButtonText>
-														</Button>
-													</HStack>
-												</VStack>
-											</Box>
-										);
-									})}
+									{recipes.map((recipe) => (
+										<RecipeCard
+											key={recipe.id}
+											recipe={recipe}
+											isSelected={selectedRecipeIds.includes(recipe.id)}
+											onToggleSelection={handleToggleRecipeSelection}
+											onEdit={handleEditRecipe}
+											onDelete={handleDeleteRecipe}
+										/>
+									))}
 								</VStack>
 
 								{selectedRecipeIds.length > 0 && (
@@ -1166,129 +1044,12 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 												(a, b) => b.quantidadePossivel - a.quantidadePossivel,
 											)
 											.map((result) => (
-												<Box
+												<ProductionPotentialResultCard
 													key={`${result.receita}-${result.quantidadePossivel}`}
-													backgroundColor={
-														result.alertas && result.alertas.length > 0
-															? "$yellow50"
-															: "$green50"
-													}
-													borderRadius={8}
-													padding={16}
-													borderWidth={1}
-													borderColor={
-														result.alertas && result.alertas.length > 0
-															? "$yellow200"
-															: "$green200"
-													}
-												>
-													<VStack space="md">
-														<VStack space="xs">
-															<Text
-																size="lg"
-																fontWeight="$bold"
-																color="$gray900"
-															>
-																{result.receita}
-															</Text>
-															<Text
-																size="md"
-																color={
-																	result.alertas && result.alertas.length > 0
-																		? "$yellow900"
-																		: "$green900"
-																}
-															>
-																Potencial produtivo:{" "}
-																{formatNumber(result.quantidadePossivel)}{" "}
-																{UNIT_LABELS[result.unidade]}
-															</Text>
-														</VStack>
-														{result.alertas && result.alertas.length > 0 && (
-															<VStack space="sm">
-																{result.alertas.map((alerta, index) => (
-																	<Box
-																		key={`${result.receita}-alerta-${alerta.ingrediente}-${index}`}
-																		backgroundColor={
-																			alerta.tipo === "ingrediente_faltando"
-																				? "$red50"
-																				: "$orange50"
-																		}
-																		borderRadius={6}
-																		padding={12}
-																		borderWidth={1}
-																		borderColor={
-																			alerta.tipo === "ingrediente_faltando"
-																				? "$red200"
-																				: "$orange200"
-																		}
-																	>
-																		<VStack space="xs">
-																			<HStack alignItems="center" space="xs">
-																				<Text
-																					size="sm"
-																					fontWeight="$bold"
-																					color={
-																						alerta.tipo ===
-																						"ingrediente_faltando"
-																							? "$red900"
-																							: "$orange900"
-																					}
-																				>
-																					{alerta.tipo ===
-																					"ingrediente_faltando"
-																						? "⚠️"
-																						: "🔔"}
-																				</Text>
-																				<Text
-																					size="sm"
-																					fontWeight="$semibold"
-																					color={
-																						alerta.tipo ===
-																						"ingrediente_faltando"
-																							? "$red900"
-																							: "$orange900"
-																					}
-																				>
-																					{alerta.ingrediente}
-																				</Text>
-																			</HStack>
-																			<Text
-																				size="xs"
-																				color={
-																					alerta.tipo === "ingrediente_faltando"
-																						? "$red700"
-																						: "$orange700"
-																				}
-																			>
-																				{alerta.mensagem}
-																			</Text>
-																			<Text
-																				size="xs"
-																				color={
-																					alerta.tipo === "ingrediente_faltando"
-																						? "$red600"
-																						: "$orange600"
-																				}
-																			>
-																				Necessário:{" "}
-																				{formatNumber(
-																					alerta.quantidadeNecessaria,
-																				)}{" "}
-																				{UNIT_LABELS[alerta.unidadeNecessaria]}{" "}
-																				• Disponível:{" "}
-																				{formatNumber(
-																					alerta.quantidadeDisponivel,
-																				)}{" "}
-																				{UNIT_LABELS[alerta.unidadeDisponivel]}
-																			</Text>
-																		</VStack>
-																	</Box>
-																))}
-															</VStack>
-														)}
-													</VStack>
-												</Box>
+													result={result}
+													formatNumber={formatNumber}
+													unitLabels={UNIT_LABELS}
+												/>
 											))}
 									</VStack>
 								)}
@@ -1382,25 +1143,14 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 											Ingredientes
 										</Text>
 										<HStack space="sm">
-											<Button
-												onPress={
-													isRecording
-														? handleStopRecording
-														: handleStartRecording
-												}
-												isDisabled={isProcessingAudio}
-												size="sm"
-												variant={isRecording ? "solid" : "outline"}
-												action={isRecording ? "negative" : "primary"}
-											>
-												<ButtonText>
-													{isRecording
-														? `⏹️ Parar (${recordTime})`
-														: isProcessingAudio
-															? "🎙️ Processando..."
-															: "🎙️ Gravar por Áudio"}
-												</ButtonText>
-											</Button>
+											<AudioRecordingControls
+												isRecording={isRecording}
+												isProcessingAudio={isProcessingAudio}
+												recordTime={recordTime}
+												onStartRecording={handleStartRecording}
+												onStopRecording={handleStopRecording}
+												onCancelRecording={handleCancelRecording}
+											/>
 											<Button
 												onPress={handleAddIngredient}
 												size="sm"
@@ -1410,32 +1160,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 											</Button>
 										</HStack>
 									</HStack>
-									{isRecording && (
-										<Box
-											backgroundColor="$red50"
-											borderRadius={8}
-											padding={12}
-											borderWidth={1}
-											borderColor="$red200"
-										>
-											<HStack
-												justifyContent="space-between"
-												alignItems="center"
-											>
-												<Text size="sm" color="$red900">
-													🎤 Gravando... {recordTime}
-												</Text>
-												<Button
-													onPress={handleCancelRecording}
-													size="xs"
-													variant="outline"
-													action="negative"
-												>
-													<ButtonText>Cancelar</ButtonText>
-												</Button>
-											</HStack>
-										</Box>
-									)}
 
 									{recipeFormErrors.ingredientes && (
 										<Text size="sm" color="$error500">
@@ -1443,232 +1167,29 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 										</Text>
 									)}
 
-									{recipeIngredients.map((ingredient, index) => {
-										// Find selected stock item to display its name
-										const selectedStockItem = ingredient.itemEstoqueId
-											? stockItems.find(
-													(item) => item.id === ingredient.itemEstoqueId,
-												)
-											: null;
-
-										console.log(`🔍 [RECIPE FORM] Ingrediente ${index + 1}:`, {
-											id: ingredient.id,
-											itemEstoqueId: ingredient.itemEstoqueId,
-											nome: ingredient.nome,
-											selectedStockItem:
-												selectedStockItem?.nome || "não encontrado",
-										});
-
-										// Available items: exclude items used in OTHER ingredients, but always include the current selected item
-										let availableStockItems = stockItems.filter((item) => {
-											// Always include the currently selected item for this ingredient
-											if (item.id === ingredient.itemEstoqueId) {
-												return true;
-											}
-											// Exclude items used in other ingredients
-											return !recipeIngredients.some(
-												(ing) =>
-													ing.itemEstoqueId === item.id &&
-													ing.id !== ingredient.id,
-											);
-										});
-
-										// Sort: selected item first, then alphabetically
-										if (ingredient.itemEstoqueId) {
-											availableStockItems = [
-												...availableStockItems.filter(
-													(item) => item.id === ingredient.itemEstoqueId,
-												),
-												...availableStockItems
-													.filter(
-														(item) => item.id !== ingredient.itemEstoqueId,
-													)
-													.sort((a, b) => a.nome.localeCompare(b.nome)),
-											];
-										} else {
-											availableStockItems.sort((a, b) =>
-												a.nome.localeCompare(b.nome),
-											);
-										}
-
-										// Display value: use ingredient name if no stock item found (fallback), otherwise use stock item name
-										const displayValue = selectedStockItem
-											? `${selectedStockItem.nome} (${selectedStockItem.quantidade} ${UNIT_LABELS[selectedStockItem.unidade]})`
-											: ingredient.nome || undefined;
-
-										console.log(
-											`📝 [RECIPE FORM] Ingrediente ${index + 1} - Display value:`,
-											displayValue,
-										);
-										console.log(
-											`📝 [RECIPE FORM] Ingrediente ${index + 1} - Item selecionado:`,
-											selectedStockItem?.nome,
-										);
-
-										return (
-											<Box
-												key={ingredient.id}
-												backgroundColor="$gray50"
-												borderRadius={8}
-												padding={16}
-												borderWidth={1}
-												borderColor="$gray200"
-											>
-												<VStack space="md">
-													<HStack
-														justifyContent="space-between"
-														alignItems="center"
-													>
-														<Text size="sm" fontWeight="$semibold">
-															Ingrediente {index + 1}
-														</Text>
-														{recipeIngredients.length > 1 && (
-															<Button
-																onPress={() =>
-																	handleRemoveIngredient(ingredient.id)
-																}
-																size="xs"
-																variant="outline"
-																action="negative"
-															>
-																<ButtonText>Remover</ButtonText>
-															</Button>
-														)}
-													</HStack>
-
-													<FormControl>
-														<FormControlLabel>
-															<FormControlLabelText>
-																Ingrediente
-															</FormControlLabelText>
-														</FormControlLabel>
-														<Select
-															selectedValue={
-																ingredient.itemEstoqueId || undefined
-															}
-															onValueChange={(value) =>
-																handleIngredientStockItemChange(
-																	ingredient.id,
-																	value,
-																)
-															}
-														>
-															<SelectTrigger variant="outline" size="md">
-																<SelectInput
-																	placeholder="Selecione um item do estoque"
-																	value={displayValue}
-																/>
-															</SelectTrigger>
-															<SelectPortal>
-																<SelectBackdrop />
-																<SelectContent>
-																	<SelectDragIndicatorWrapper>
-																		<SelectDragIndicator />
-																	</SelectDragIndicatorWrapper>
-																	{availableStockItems.map((item) => (
-																		<SelectItem
-																			key={item.id}
-																			label={`${item.nome} (${item.quantidade} ${UNIT_LABELS[item.unidade]})`}
-																			value={item.id}
-																		/>
-																	))}
-																	{/* Always include selected item if not in available list (for display) */}
-																	{selectedStockItem &&
-																		!availableStockItems.some(
-																			(item) =>
-																				item.id === selectedStockItem.id,
-																		) && (
-																			<SelectItem
-																				key={selectedStockItem.id}
-																				label={`${selectedStockItem.nome} (${selectedStockItem.quantidade} ${UNIT_LABELS[selectedStockItem.unidade]})`}
-																				value={selectedStockItem.id}
-																			/>
-																		)}
-																</SelectContent>
-															</SelectPortal>
-														</Select>
-													</FormControl>
-
-													{ingredient.itemEstoqueId && (
-														<>
-															<FormControl>
-																<FormControlLabel>
-																	<FormControlLabelText>
-																		Quantidade Necessária
-																	</FormControlLabelText>
-																</FormControlLabel>
-																<Input>
-																	<InputField
-																		placeholder="0.0"
-																		value={ingredient.quantidade}
-																		onChangeText={(text) => {
-																			setRecipeIngredients(
-																				recipeIngredients.map((ing) =>
-																					ing.id === ingredient.id
-																						? { ...ing, quantidade: text }
-																						: ing,
-																				),
-																			);
-																		}}
-																		keyboardType="numeric"
-																	/>
-																</Input>
-															</FormControl>
-
-															<FormControl>
-																<FormControlLabel>
-																	<FormControlLabelText>
-																		Unidade de Medida
-																		{getCompatibleUnits(ingredient.unidade)
-																			.length > 1
-																			? " (pode alterar)"
-																			: ""}
-																	</FormControlLabelText>
-																</FormControlLabel>
-																<Select
-																	selectedValue={ingredient.unidade}
-																	onValueChange={(value) =>
-																		handleIngredientUnitChange(
-																			ingredient.id,
-																			value as Unit,
-																		)
-																	}
-																	isDisabled={
-																		getCompatibleUnits(ingredient.unidade)
-																			.length === 1
-																	}
-																>
-																	<SelectTrigger variant="outline" size="md">
-																		<SelectInput
-																			placeholder="Selecione a unidade"
-																			value={UNIT_LABELS[ingredient.unidade]}
-																		/>
-																	</SelectTrigger>
-																	<SelectPortal>
-																		<SelectBackdrop />
-																		<SelectContent>
-																			<SelectDragIndicatorWrapper>
-																				<SelectDragIndicator />
-																			</SelectDragIndicatorWrapper>
-																			{getCompatibleUnits(
-																				ingredient.unidade,
-																			).map((unit) => (
-																				<SelectItem
-																					key={unit}
-																					label={UNIT_LABELS[unit]}
-																					value={unit}
-																				/>
-																			))}
-																		</SelectContent>
-																	</SelectPortal>
-																</Select>
-															</FormControl>
-														</>
-													)}
-												</VStack>
-											</Box>
-										);
-									})}
+									{recipeIngredients.map((ingredient, index) => (
+										<IngredientFormItem
+											key={ingredient.id}
+											ingredient={ingredient}
+											index={index}
+											stockItems={stockItems}
+											allIngredients={recipeIngredients}
+											unitLabels={UNIT_LABELS}
+											onStockItemChange={handleIngredientStockItemChange}
+											onQuantityChange={(ingredientId, quantity) => {
+												setRecipeIngredients(
+													recipeIngredients.map((ing) =>
+														ing.id === ingredientId
+															? { ...ing, quantidade: quantity }
+															: ing,
+													),
+												);
+											}}
+											onUnitChange={handleIngredientUnitChange}
+											onRemove={handleRemoveIngredient}
+											canRemove={recipeIngredients.length > 1}
+										/>
+									))}
 								</VStack>
 
 								<Button onPress={handleSaveRecipe} size="lg" variant="solid">
@@ -1692,11 +1213,5 @@ const styles = StyleSheet.create({
 	},
 	scrollContent: {
 		paddingVertical: 20,
-	},
-	recipeRow: {
-		flex: 1,
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
 	},
 });

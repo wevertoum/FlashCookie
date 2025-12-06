@@ -3,7 +3,6 @@
  */
 
 import {
-	Box,
 	Button,
 	ButtonText,
 	Heading,
@@ -20,9 +19,9 @@ import {
 	RefreshControl,
 	ScrollView,
 	StyleSheet,
-	TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { StockItemCard } from "../components/StockItemCard";
 import type { RootStackParamList } from "../navigation/AppNavigator";
 import {
 	deleteStockItem,
@@ -150,56 +149,13 @@ export const StockScreen: React.FC<StockScreenProps> = ({ navigation }) => {
 					) : (
 						<VStack space="md" width="100%">
 							{stockItems.map((item) => (
-								<Box
+								<StockItemCard
 									key={item.id}
-									backgroundColor="$gray100"
-									borderRadius={8}
-									padding={16}
-									borderWidth={1}
-									borderColor="$gray200"
-								>
-									<VStack space="sm">
-										<HStack
-											justifyContent="space-between"
-											alignItems="flex-start"
-										>
-											<VStack flex={1} space="xs">
-												<Text size="lg" fontWeight="$bold" color="$gray900">
-													{item.nome}
-												</Text>
-												<HStack space="sm" alignItems="center">
-													<Text size="md" color="$gray700">
-														Quantidade:
-													</Text>
-													<Text
-														size="md"
-														fontWeight="$semibold"
-														color="$primary600"
-													>
-														{item.quantidade.toFixed(2)}{" "}
-														{UNIT_LABELS[item.unidade]}
-													</Text>
-												</HStack>
-											</VStack>
-											<TouchableOpacity
-												onPress={() => handleDeleteItem(item)}
-												style={styles.deleteButton}
-											>
-												<Text style={styles.deleteButtonText}>×</Text>
-											</TouchableOpacity>
-										</HStack>
-										<HStack space="md" alignItems="center">
-											<Text size="xs" color="$gray500">
-												Criado em: {formatDate(item.createdAt)}
-											</Text>
-											{item.updatedAt !== item.createdAt && (
-												<Text size="xs" color="$gray500">
-													Atualizado em: {formatDate(item.updatedAt)}
-												</Text>
-											)}
-										</HStack>
-									</VStack>
-								</Box>
+									item={item}
+									unitLabels={UNIT_LABELS}
+									formatDate={formatDate}
+									onDelete={handleDeleteItem}
+								/>
 							))}
 						</VStack>
 					)}
@@ -216,20 +172,5 @@ const styles = StyleSheet.create({
 	},
 	scrollContent: {
 		paddingVertical: 20,
-	},
-	deleteButton: {
-		width: 32,
-		height: 32,
-		borderRadius: 16,
-		backgroundColor: "#EF4444",
-		justifyContent: "center",
-		alignItems: "center",
-		marginLeft: 8,
-	},
-	deleteButtonText: {
-		color: "#FFFFFF",
-		fontSize: 24,
-		fontWeight: "bold",
-		lineHeight: 28,
 	},
 });
