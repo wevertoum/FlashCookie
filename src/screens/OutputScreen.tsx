@@ -35,7 +35,7 @@ import {
 	ScrollView,
 	StyleSheet,
 } from "react-native";
-import AudioRecorderPlayer from "react-native-audio-recorder-player";
+import Sound from "react-native-nitro-sound";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ItemToRemoveCard } from "../components/ItemToRemoveCard";
 import type { RootStackParamList } from "../navigation/AppNavigator";
@@ -118,7 +118,6 @@ const areUnitsCompatible = (fromUnit: Unit, toUnit: Unit): boolean => {
 };
 
 export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
-	const audioRecorderPlayerRef = useRef(AudioRecorderPlayer);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [showManualEntry, setShowManualEntry] = useState(false);
@@ -145,13 +144,14 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 	);
 
 	useEffect(() => {
-		const audioRecorderPlayer = audioRecorderPlayerRef.current;
 		const intervalRef = recordTimeIntervalRef.current;
 		return () => {
 			if (intervalRef) {
 				clearInterval(intervalRef);
 			}
-			audioRecorderPlayer.stopRecorder();
+			Sound.stopRecorder().catch(() => {
+				// Ignore errors on cleanup
+			});
 		};
 	}, []);
 
@@ -193,14 +193,13 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 				return;
 			}
 
-			const audioRecorderPlayer = audioRecorderPlayerRef.current;
-			const result = await audioRecorderPlayer.startRecorder();
+			const result = await Sound.startRecorder();
 			const path = typeof result === "string" ? result : result;
 			setRecordingPath(path);
 			setIsRecording(true);
 			setRecordTime("00:00");
 
-			audioRecorderPlayer.addRecordBackListener(
+			Sound.addRecordBackListener(
 				(e: { currentPosition: number }) => {
 					const minutes = Math.floor(e.currentPosition / 1000 / 60);
 					const seconds = Math.floor((e.currentPosition / 1000) % 60);
@@ -221,9 +220,8 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 
 	const handleStopRecording = async () => {
 		try {
-			const audioRecorderPlayer = audioRecorderPlayerRef.current;
-			const result = await audioRecorderPlayer.stopRecorder();
-			audioRecorderPlayer.removeRecordBackListener();
+			const result = await Sound.stopRecorder();
+			Sound.removeRecordBackListener();
 			setIsRecording(false);
 			if (recordTimeIntervalRef.current) {
 				clearInterval(recordTimeIntervalRef.current);
@@ -240,9 +238,8 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 
 	const handleCancelRecording = async () => {
 		try {
-			const audioRecorderPlayer = audioRecorderPlayerRef.current;
-			await audioRecorderPlayer.stopRecorder();
-			audioRecorderPlayer.removeRecordBackListener();
+			await Sound.stopRecorder();
+			Sound.removeRecordBackListener();
 			setIsRecording(false);
 			setRecordingPath(null);
 			setRecordTime("00:00");

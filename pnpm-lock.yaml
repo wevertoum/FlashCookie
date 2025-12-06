@@ -35,9 +35,6 @@ importers:
       react-native:
         specifier: 0.82.1
         version: 0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1)
-      react-native-audio-recorder-player:
-        specifier: ^4.5.0
-        version: 4.5.0(react-native-nitro-modules@0.31.10(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1))(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1)
       react-native-fs:
         specifier: ^2.20.0
         version: 2.20.0(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))
@@ -53,6 +50,9 @@ importers:
       react-native-nitro-modules:
         specifier: ^0.31.10
         version: 0.31.10(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1)
+      react-native-nitro-sound:
+        specifier: ^0.2.10
+        version: 0.2.10(react-native-nitro-modules@0.31.10(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1))(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1)
       react-native-safe-area-context:
         specifier: ^5.6.2
         version: 5.6.2(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1)
@@ -1654,6 +1654,9 @@ packages:
     resolution: {integrity: sha512-/cMnGl5V1rqnbElY1Fvga1vfw0d3bnqiJLx2+2oh7l9ulnXfVRWb5tU2kgBqiMxuDOKA+DQoifC9q/tvkj5K2w==}
     engines: {node: '>=18'}
     hasBin: true
+
+  '@react-native-community/slider@5.1.1':
+    resolution: {integrity: sha512-W98If/LnTaziU3/0h5+G1LvJaRhMc6iLQBte6UWa4WBIHDMaDPglNBIFKcCXc9Dxp83W+f+5Wv22Olq9M2HJYA==}
 
   '@react-native/assets-registry@0.82.1':
     resolution: {integrity: sha512-B1SRwpntaAcckiatxbjzylvNK562Ayza05gdJCjDQHTiDafa1OABmyB5LHt7qWDOpNkaluD+w11vHF7pBmTpzQ==}
@@ -4359,14 +4362,6 @@ packages:
   react-is@19.2.1:
     resolution: {integrity: sha512-L7BnWgRbMwzMAubQcS7sXdPdNLmKlucPlopgAzx7FtYbksWZgEWiuYM5x9T6UqS2Ne0rsgQTq5kY2SGqpzUkYA==}
 
-  react-native-audio-recorder-player@4.5.0:
-    resolution: {integrity: sha512-+XhF/vTcp/Igzulhk+aL/XPGDjTkZPHKcjMQP9KGFXBVRvYYYoMQxwqqNCAVN0IK7FyTK+jYS9Ouy6kngQLgeQ==}
-    deprecated: This package has been deprecated. Please use react-native-nitro-sound instead.
-    peerDependencies:
-      react: '*'
-      react-native: '*'
-      react-native-nitro-modules: '*'
-
   react-native-css-interop@0.2.1:
     resolution: {integrity: sha512-B88f5rIymJXmy1sNC/MhTkb3xxBej1KkuAt7TiT9iM7oXz3RM8Bn+7GUrfR02TvSgKm4cg2XiSuLEKYfKwNsjA==}
     engines: {node: '>=18'}
@@ -4427,6 +4422,13 @@ packages:
     peerDependencies:
       react: '*'
       react-native: '*'
+
+  react-native-nitro-sound@0.2.10:
+    resolution: {integrity: sha512-hzTk74gbGqIms7jnKG0rQzNj/eI118Zcw3a9+lnXi+TLRzIuhqvEehKImvfa1NdyqA+oi9eZAsIQTtvnlKbb9w==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
+      react-native-nitro-modules: '*'
 
   react-native-reanimated@4.2.0:
     resolution: {integrity: sha512-frhu5b8/m/VvaMWz48V8RxcsXnE3hrlErQ5chr21MzAeDCpY4X14sQjvm+jvu3aOI+7Cz2atdRpyhhIuqxVaXg==}
@@ -7681,6 +7683,8 @@ snapshots:
       - supports-color
       - typescript
       - utf-8-validate
+
+  '@react-native-community/slider@5.1.1': {}
 
   '@react-native/assets-registry@0.82.1': {}
 
@@ -11131,12 +11135,6 @@ snapshots:
 
   react-is@19.2.1: {}
 
-  react-native-audio-recorder-player@4.5.0(react-native-nitro-modules@0.31.10(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1))(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1):
-    dependencies:
-      react: 19.1.1
-      react-native: 0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1)
-      react-native-nitro-modules: 0.31.10(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1)
-
   react-native-css-interop@0.2.1(7da8c08a8f8a4ab8ac82d87640dcd7f8):
     dependencies:
       '@babel/helper-module-imports': 7.27.1
@@ -11190,6 +11188,13 @@ snapshots:
     dependencies:
       react: 19.1.1
       react-native: 0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1)
+
+  react-native-nitro-sound@0.2.10(react-native-nitro-modules@0.31.10(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1))(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1):
+    dependencies:
+      '@react-native-community/slider': 5.1.1
+      react: 19.1.1
+      react-native: 0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1)
+      react-native-nitro-modules: 0.31.10(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1)
 
   react-native-reanimated@4.2.0(react-native-worklets@0.7.1(@babel/core@7.28.5)(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1))(react-native@0.82.1(@babel/core@7.28.5)(@react-native-community/cli@20.0.0(typescript@5.9.3))(@react-native/metro-config@0.82.1(@babel/core@7.28.5))(@types/react@19.2.7)(react@19.1.1))(react@19.1.1):
     dependencies:

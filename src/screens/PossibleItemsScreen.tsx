@@ -32,12 +32,13 @@ import {
 	ScrollView,
 	StyleSheet,
 } from "react-native";
-import AudioRecorderPlayer from "react-native-audio-recorder-player";
+import Sound from "react-native-nitro-sound";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AudioRecordingControls } from "../components/AudioRecordingControls";
 import { IngredientFormItem } from "../components/IngredientFormItem";
 import { ProductionPotentialResultCard } from "../components/ProductionPotentialResultCard";
 import { RecipeCard } from "../components/RecipeCard";
+import { RecipeDetailsModal } from "../components/RecipeDetailsModal";
 import type { RootStackParamList } from "../navigation/AppNavigator";
 import {
 	clearPossibleItemsData,
@@ -108,6 +109,11 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
 
+	// RF-034: Recipe details modal state
+	const [selectedRecipeForDetails, setSelectedRecipeForDetails] =
+		useState<Recipe | null>(null);
+	const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
 	// Recipe form state
 	const [showRecipeForm, setShowRecipeForm] = useState(false);
 	const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
@@ -125,7 +131,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	}>({});
 
 	// Audio recording state
-	const audioRecorderPlayerRef = useRef(AudioRecorderPlayer);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isProcessingAudio, setIsProcessingAudio] = useState(false);
 	const [recordingPath, setRecordingPath] = useState<string | null>(null);
@@ -135,14 +140,15 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	useEffect(() => {
 		console.log("🚀 [POSSIBLE ITEMS] Tela de Itens Possíveis montada");
 
-		const audioRecorderPlayer = audioRecorderPlayerRef.current;
 		const intervalRef = recordTimeIntervalRef.current;
 
 		return () => {
 			if (intervalRef) {
 				clearInterval(intervalRef);
 			}
-			audioRecorderPlayer.stopRecorder();
+			Sound.stopRecorder().catch(() => {
+				// Ignore errors on cleanup
+			});
 		};
 	}, []);
 
@@ -271,23 +277,20 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 			}
 
 			console.log("🎤 [RECIPE AUDIO] Iniciando gravação de áudio...");
-			const audioRecorderPlayer = audioRecorderPlayerRef.current;
-			const result = await audioRecorderPlayer.startRecorder();
+			const result = await Sound.startRecorder();
 			const path = typeof result === "string" ? result : result;
 			setRecordingPath(path);
 			setIsRecording(true);
 			setRecordTime("00:00");
 
-			audioRecorderPlayer.addRecordBackListener(
-				(e: { currentPosition: number }) => {
-					const minutes = Math.floor(e.currentPosition / 1000 / 60);
-					const seconds = Math.floor((e.currentPosition / 1000) % 60);
-					setRecordTime(
-						`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
-					);
-					return;
-				},
-			);
+			Sound.addRecordBackListener((e: { currentPosition: number }) => {
+				const minutes = Math.floor(e.currentPosition / 1000 / 60);
+				const seconds = Math.floor((e.currentPosition / 1000) % 60);
+				setRecordTime(
+					`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+				);
+				return;
+			});
 			console.log("🎤 [RECIPE AUDIO] Gravação iniciada");
 		} catch (error) {
 			console.error("Error starting recording:", error);
@@ -301,9 +304,8 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	const handleStopRecording = async () => {
 		try {
 			console.log("⏹️ [RECIPE AUDIO] Parando gravação...");
-			const audioRecorderPlayer = audioRecorderPlayerRef.current;
-			const result = await audioRecorderPlayer.stopRecorder();
-			audioRecorderPlayer.removeRecordBackListener();
+			const result = await Sound.stopRecorder();
+			Sound.removeRecordBackListener();
 			setIsRecording(false);
 			if (recordTimeIntervalRef.current) {
 				clearInterval(recordTimeIntervalRef.current);
@@ -321,9 +323,8 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	const handleCancelRecording = async () => {
 		try {
 			console.log("❌ [RECIPE AUDIO] Cancelando gravação...");
-			const audioRecorderPlayer = audioRecorderPlayerRef.current;
-			await audioRecorderPlayer.stopRecorder();
-			audioRecorderPlayer.removeRecordBackListener();
+			await Sound.stopRecorder();
+			Sound.removeRecordBackListener();
 			setIsRecording(false);
 			setRecordingPath(null);
 			setRecordTime("00:00");
@@ -905,6 +906,23 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 		);
 	};
 
+	// RF-034: Handle view recipe details
+	const handleViewRecipeDetails = (recipe: Recipe) => {
+		setSelectedRecipeForDetails(recipe);
+		setIsDetailsModalOpen(true);
+	};
+
+	// RF-034: Get production potential for a specific recipe
+	const getProductionPotentialForRecipe = (recipe: Recipe) => {
+		return aiOutput.find((result) => result.receita === recipe.nome);
+	};
+
+	// RF-034: Close details modal
+	const handleCloseDetailsModal = () => {
+		setIsDetailsModalOpen(false);
+		setSelectedRecipeForDetails(null);
+	};
+
 	const stockItems = getAllStockItems();
 
 	return (
@@ -1006,6 +1024,7 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 											onToggleSelection={handleToggleRecipeSelection}
 											onEdit={handleEditRecipe}
 											onDelete={handleDeleteRecipe}
+											onViewDetails={handleViewRecipeDetails}
 										/>
 									))}
 								</VStack>
@@ -1202,6 +1221,18 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 					</ScrollView>
 				</KeyboardAvoidingView>
 			)}
+
+			{/* RF-034: Recipe Details Modal */}
+			<RecipeDetailsModal
+				isOpen={isDetailsModalOpen}
+				onClose={handleCloseDetailsModal}
+				recipe={selectedRecipeForDetails}
+				productionPotential={
+					selectedRecipeForDetails
+						? getProductionPotentialForRecipe(selectedRecipeForDetails)
+						: undefined
+				}
+			/>
 		</SafeAreaView>
 	);
 };

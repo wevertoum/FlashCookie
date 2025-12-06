@@ -1,6 +1,13 @@
-import { Box, Button, ButtonText, HStack, Text, VStack } from "@gluestack-ui/themed";
+import {
+	Box,
+	Button,
+	ButtonText,
+	HStack,
+	Text,
+	VStack,
+} from "@gluestack-ui/themed";
 import type React from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import type { Recipe } from "../types";
 
 interface RecipeCardProps {
@@ -9,6 +16,7 @@ interface RecipeCardProps {
 	onToggleSelection: (recipeId: string) => void;
 	onEdit: (recipe: Recipe) => void;
 	onDelete: (recipe: Recipe) => void;
+	onViewDetails?: (recipe: Recipe) => void;
 }
 
 export const RecipeCard: React.FC<RecipeCardProps> = ({
@@ -17,6 +25,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
 	onToggleSelection,
 	onEdit,
 	onDelete,
+	onViewDetails,
 }) => {
 	return (
 		<Box
@@ -34,15 +43,22 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
 						activeOpacity={0.7}
 					>
 						<VStack flex={1} space="xs">
-							<Text size="lg" fontWeight="$bold" color="$gray900">
-								{recipe.nome}
-							</Text>
+							<TouchableOpacity
+								onPress={() => onViewDetails?.(recipe)}
+								activeOpacity={0.7}
+							>
+								<Text size="lg" fontWeight="$bold" color="$gray900">
+									{recipe.nome}
+								</Text>
+							</TouchableOpacity>
 							<Text size="sm" color="$gray600">
 								Rendimento: {recipe.rendimento} unidades
 							</Text>
 							<Text size="sm" color="$gray600">
 								{recipe.ingredientes.length}{" "}
-								{recipe.ingredientes.length === 1 ? "ingrediente" : "ingredientes"}
+								{recipe.ingredientes.length === 1
+									? "ingrediente"
+									: "ingredientes"}
 							</Text>
 						</VStack>
 						<Box
@@ -64,7 +80,22 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
 					</TouchableOpacity>
 				</HStack>
 				<HStack space="sm">
-					<Button onPress={() => onEdit(recipe)} size="sm" variant="outline" flex={1}>
+					{onViewDetails && (
+						<Button
+							onPress={() => onViewDetails(recipe)}
+							size="sm"
+							variant="outline"
+							flex={1}
+						>
+							<ButtonText>Ver Detalhes</ButtonText>
+						</Button>
+					)}
+					<Button
+						onPress={() => onEdit(recipe)}
+						size="sm"
+						variant="outline"
+						flex={1}
+					>
 						<ButtonText>Editar</ButtonText>
 					</Button>
 					<Button
@@ -90,4 +121,3 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 });
-
