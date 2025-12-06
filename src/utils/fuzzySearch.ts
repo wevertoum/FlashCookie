@@ -19,6 +19,48 @@ function normalizeString(str: string): string {
 }
 
 /**
+ * Split string into words, filtering out common words
+ */
+function getKeywords(str: string): string[] {
+  const normalized = normalizeString(str);
+  const stopWords = ['de', 'da', 'do', 'em', 'a', 'o', 'e', 'para', 'com', 'um', 'uma'];
+  return normalized
+    .split(/\s+/)
+    .filter(word => word.length > 2 && !stopWords.includes(word));
+}
+
+/**
+ * Calculate keyword-based similarity
+ * Checks if keywords from search term appear in the item name
+ */
+function calculateKeywordSimilarity(searchName: string, itemName: string): number {
+  const searchKeywords = getKeywords(searchName);
+  const itemKeywords = getKeywords(itemName);
+  
+  if (searchKeywords.length === 0) {
+    return 0;
+  }
+  
+  let matchedKeywords = 0;
+  for (const searchKeyword of searchKeywords) {
+    const found = itemKeywords.some(itemKeyword => 
+      itemKeyword.includes(searchKeyword) || searchKeyword.includes(itemKeyword)
+    );
+    if (found) {
+      matchedKeywords++;
+    }
+  }
+  
+  const keywordScore = matchedKeywords / searchKeywords.length;
+  const normalizedSearch = normalizeString(searchName);
+  const normalizedItem = normalizeString(itemName);
+  const containsBonus = normalizedItem.includes(normalizedSearch) || 
+                        normalizedSearch.includes(normalizedItem) ? 0.3 : 0;
+  
+  return Math.min(1, keywordScore * 0.7 + containsBonus);
+}
+
+/**
  * Calculate similarity between two strings using Levenshtein distance
  * Returns a value between 0 and 1 (1 = identical)
  */
@@ -34,7 +76,12 @@ function calculateSimilarity(str1: string, str2: string): number {
     return 0;
   }
 
-  // Levenshtein distance
+  if (s1.includes(s2) || s2.includes(s1)) {
+    const minLength = Math.min(s1.length, s2.length);
+    const maxLength = Math.max(s1.length, s2.length);
+    return Math.max(0.7, minLength / maxLength);
+  }
+
   const matrix: number[][] = [];
 
   for (let i = 0; i <= s2.length; i++) {
@@ -51,9 +98,9 @@ function calculateSimilarity(str1: string, str2: string): number {
         matrix[i][j] = matrix[i - 1][j - 1];
       } else {
         matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1, // substitution
-          matrix[i][j - 1] + 1, // insertion
-          matrix[i - 1][j] + 1, // deletion
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1,
         );
       }
     }
@@ -62,7 +109,10 @@ function calculateSimilarity(str1: string, str2: string): number {
   const distance = matrix[s2.length][s1.length];
   const maxLength = Math.max(s1.length, s2.length);
   
-  return 1 - distance / maxLength;
+  const levenshteinScore = maxLength === 0 ? 1 : 1 - distance / maxLength;
+  const keywordScore = calculateKeywordSimilarity(str1, str2);
+  
+  return Math.max(levenshteinScore, keywordScore, (levenshteinScore + keywordScore) / 2);
 }
 
 /**
@@ -76,16 +126,25 @@ export function findSimilarItems(
   threshold: number = 0.7,
 ): Array<{ item: StockItem; similarity: number }> {
   const results: Array<{ item: StockItem; similarity: number }> = [];
+  const allComparisons: Array<{ item: string; similarity: number }> = [];
 
   for (const item of stockItems) {
     const similarity = calculateSimilarity(searchName, item.nome);
+    allComparisons.push({ item: item.nome, similarity });
     
     if (similarity >= threshold) {
       results.push({ item, similarity });
     }
   }
 
-  // Sort by similarity (highest first)
+  allComparisons.sort((a, b) => b.similarity - a.similarity);
+  console.log('📊 [FUZZY SEARCH] Top 5 comparações:');
+  allComparisons.slice(0, 5).forEach((comp, index) => {
+    const passed = comp.similarity >= threshold;
+    const icon = passed ? '✅' : '❌';
+    console.log(`  ${icon} ${index + 1}. "${comp.item}" - ${(comp.similarity * 100).toFixed(2)}% (threshold: ${(threshold * 100).toFixed(2)}%)`);
+  });
+
   results.sort((a, b) => b.similarity - a.similarity);
 
   return results;
@@ -100,7 +159,25 @@ export function findBestMatch(
   stockItems: StockItem[],
   threshold: number = 0.7,
 ): StockItem | null {
+  console.log('🔍 [FUZZY SEARCH] Buscando item:', searchName);
+  console.log('🔍 [FUZZY SEARCH] Palavras-chave extraídas:', getKeywords(searchName));
+  console.log('🔍 [FUZZY SEARCH] Threshold:', threshold);
+  console.log('🔍 [FUZZY SEARCH] Itens no estoque:', stockItems.map(i => i.nome));
+  
   const matches = findSimilarItems(searchName, stockItems, threshold);
-  return matches.length > 0 ? matches[0].item : null;
+  
+  console.log('🔍 [FUZZY SEARCH] Matches encontrados:', matches.length);
+  matches.forEach((match, index) => {
+    console.log(`  ${index + 1}. "${match.item.nome}" - Similaridade: ${(match.similarity * 100).toFixed(2)}%`);
+  });
+  
+  const result = matches.length > 0 ? matches[0].item : null;
+  if (result) {
+    console.log('✅ [FUZZY SEARCH] Melhor match:', result.nome);
+  } else {
+    console.log('❌ [FUZZY SEARCH] Nenhum match encontrado acima do threshold');
+  }
+  
+  return result;
 }
 
