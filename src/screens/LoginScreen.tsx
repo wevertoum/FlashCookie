@@ -11,7 +11,6 @@ import {
 	FormControlErrorText,
 	FormControlLabel,
 	FormControlLabelText,
-	Heading,
 	Input,
 	InputField,
 	Text,
@@ -22,6 +21,7 @@ import type React from "react";
 import { useState } from "react";
 import {
 	Alert,
+	Image,
 	KeyboardAvoidingView,
 	Platform,
 	StyleSheet,
@@ -109,9 +109,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 				<View style={styles.content}>
 					<VStack space="xl" width="100%" paddingHorizontal={24}>
 						<VStack space="md" alignItems="center">
-							<Heading size="2xl" color="$primary500">
-								FlashCookie
-							</Heading>
+							<Image
+								source={require("../assets/FlashCookie_logotipo_cropped.png")}
+								style={styles.logo}
+								resizeMode="contain"
+							/>
 							<Text size="lg" color="$gray600">
 								Faça login para continuar
 							</Text>
@@ -192,5 +194,10 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
+	},
+	logo: {
+		width: 200,
+		height: 80,
+		marginBottom: 8,
 	},
 });
