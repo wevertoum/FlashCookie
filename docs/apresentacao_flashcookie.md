@@ -271,9 +271,3 @@ O **FlashCookie** foi desenvolvido para tornar a gestão de estoque simples, rá
 - ✅ **Menos erros** - o app ajuda a evitar erros de digitação
 - 📊 **Melhor planejamento** - você sabe exatamente o que pode produzir
 - 🎯 **Simplicidade** - qualquer pessoa consegue usar
-
-**Comece a usar hoje mesmo e veja como sua gestão de estoque fica muito mais fácil!** 🚀
-
----
-
-_Documento criado para facilitar o entendimento do aplicativo FlashCookie por pessoas não técnicas._
