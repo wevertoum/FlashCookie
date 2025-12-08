@@ -2,7 +2,7 @@
 
 ## 📱 O que é o FlashCookie?
 
-O **FlashCookie** é um aplicativo móvel desenvolvido especialmente para facilitar a gestão de estoque de matéria-prima em pequenas fábricas de cookies. 
+O **FlashCookie** é um aplicativo móvel desenvolvido especialmente para facilitar a gestão de estoque de matéria-prima em pequenas fábricas de cookies.
 
 O aplicativo foi criado pensando em **simplicidade e praticidade**, utilizando inteligência artificial para tornar o trabalho do dia a dia muito mais fácil. Você não precisa ser expert em tecnologia para usar o FlashCookie!
 
@@ -94,6 +94,7 @@ Esta é uma das funcionalidades mais poderosas do FlashCookie! Quando você comp
 **Exemplo prático:**
 
 Imagine que você comprou:
+
 - 2,4 kg de farinha de trigo
 - 900 g de açúcar refinado
 - 1,2 kg de açúcar mascavo
@@ -114,7 +115,7 @@ Quando você vai fazer cookies e precisa usar ingredientes do estoque, você pod
 
 **Passo 1:** Abra a tela de Saída de Estoque e toque em "Falar o que vai usar"
 
-**Passo 2:** Fale naturalmente, por exemplo: *"Vou usar 500 gramas de farinha, 200 gramas de açúcar e 8 ovos"*
+**Passo 2:** Fale naturalmente, por exemplo: _"Vou usar 500 gramas de farinha, 200 gramas de açúcar e 8 ovos"_
 
 ![Tela de Saída de Estoque - Gravando Áudio](../screenshots/tela_saida_gravando_audio.png)
 
@@ -133,7 +134,7 @@ Quando você vai fazer cookies e precisa usar ingredientes do estoque, você pod
 
 **Exemplo prático:**
 
-Você está na cozinha preparando uma receita e precisa usar ingredientes. Em vez de parar para digitar no celular, você simplesmente fala: *"Vou usar 300 gramas de manteiga e 100 gramas de chocolate"*. O app entende e registra tudo!
+Você está na cozinha preparando uma receita e precisa usar ingredientes. Em vez de parar para digitar no celular, você simplesmente fala: _"Vou usar 300 gramas de manteiga e 100 gramas de chocolate"_. O app entende e registra tudo!
 
 ---
 
@@ -191,6 +192,7 @@ Se preferir, você também pode digitar os ingredientes manualmente.
 Depois de cadastrar suas receitas, você pode selecionar uma ou mais receitas e pedir para o app calcular quantos cookies você consegue fazer com o estoque atual.
 
 O aplicativo usa inteligência artificial para analisar:
+
 - Quais receitas você selecionou
 - Quanto de cada ingrediente você tem em estoque
 - Quanto de cada ingrediente cada receita precisa
@@ -209,6 +211,7 @@ E então mostra um relatório completo:
 **Exemplo prático:**
 
 Você tem cadastradas 3 receitas diferentes de cookies. O app analisa seu estoque e diz:
+
 - "Com o estoque atual, você pode fazer 50 unidades da Receita A"
 - "Você pode fazer 30 unidades da Receita B"
 - "Você pode fazer 25 unidades da Receita C"
@@ -273,5 +276,4 @@ O **FlashCookie** foi desenvolvido para tornar a gestão de estoque simples, rá
 
 ---
 
-*Documento criado para facilitar o entendimento do aplicativo FlashCookie por pessoas não técnicas.*
-
+_Documento criado para facilitar o entendimento do aplicativo FlashCookie por pessoas não técnicas._
