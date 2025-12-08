@@ -196,6 +196,7 @@ O aplicativo usa inteligência artificial para analisar:
 - Quais receitas você selecionou
 - Quanto de cada ingrediente você tem em estoque
 - Quanto de cada ingrediente cada receita precisa
+- Fala se algum ingrediente está faltando no estoque
 
 E então mostra um relatório completo:
 
@@ -248,16 +249,6 @@ Assim você sabe exatamente o que pode produzir!
 - ✅ Cada usuário tem sua própria conta
 - ✅ Você pode sair da conta a qualquer momento
 - ✅ Não compartilhamos seus dados com ninguém
-
----
-
-## 📞 Suporte
-
-Se você tiver dúvidas ou encontrar algum problema:
-
-1. Verifique se está usando a versão mais recente do aplicativo
-2. Tente fechar e abrir o app novamente
-3. Se o problema persistir, entre em contato com o suporte
 
 ---
 
