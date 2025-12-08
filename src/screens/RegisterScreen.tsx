@@ -64,7 +64,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 	const validateForm = (): boolean => {
 		let isValid = true;
 
-		// RF-001: Valid email validation
 		if (!email.trim()) {
 			setEmailError("Email é obrigatório");
 			isValid = false;
@@ -75,7 +74,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 			setEmailError("");
 		}
 
-		// RF-001: Password validation (minimum characters)
 		if (!password.trim()) {
 			setPasswordError("Senha é obrigatória");
 			isValid = false;
@@ -86,7 +84,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 			setPasswordError("");
 		}
 
-		// RF-001: Validate password and password confirmation are equal
 		if (!confirmPassword.trim()) {
 			setConfirmPasswordError("Confirmação de senha é obrigatória");
 			isValid = false;
@@ -108,7 +105,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 		setIsLoading(true);
 
 		try {
-			// RF-001: Check if user already exists
 			const existingUser = UserRepository.getUserByEmail(email.trim());
 			if (existingUser) {
 				setIsLoading(false);
@@ -128,7 +124,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 				return;
 			}
 
-			// RF-001, RF-002: Save data in MMKV users table
 			UserRepository.createUser(email.trim(), password);
 
 			setIsLoading(false);
@@ -144,7 +139,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 										{
 											text: "OK",
 											onPress: () => {
-												// RF-001: After successful registration, redirect to login screen
 												navigation.navigate("Login");
 											},
 										},

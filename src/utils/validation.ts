@@ -3,7 +3,6 @@
  */
 
 /**
- * Validate email format
  * RF-001: Valid email validation
  */
 export const validateEmail = (email: string): boolean => {
@@ -12,16 +11,13 @@ export const validateEmail = (email: string): boolean => {
 };
 
 /**
- * Validate password (minimum characters)
  * RF-001: Password validation (minimum characters to be defined)
  */
 export const validatePassword = (password: string): boolean => {
-  // MVP: minimum 6 characters
   return password.length >= 6;
 };
 
 /**
- * Validate password confirmation
  * RF-001: Validate password and password confirmation are equal
  */
 export const validatePasswordConfirmation = (

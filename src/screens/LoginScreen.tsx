@@ -57,7 +57,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 	const validateForm = (): boolean => {
 		let isValid = true;
 
-		// RF-003: Validations - Email and password required
 		if (!email.trim()) {
 			setEmailError("Email é obrigatório");
 			isValid = false;
@@ -86,11 +85,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 		setIsLoading(true);
 
 		try {
-			// RF-003: Search user in MMKV by email and validate password
 			const user = UserRepository.validateCredentials(email.trim(), password);
 
 			if (!user) {
-				// RF-003: If invalid: display error message
 				setIsLoading(false);
 				requestAnimationFrame(() => {
 					requestAnimationFrame(() => {
@@ -108,10 +105,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 				return;
 			}
 
-			// RF-004: Save currentUser in MMKV after successful login
 			UserRepository.setCurrentUser(user);
-
-			// RF-003: If valid: redirect to Home screen
 			setIsLoading(false);
 			onLoginSuccess();
 		} catch {

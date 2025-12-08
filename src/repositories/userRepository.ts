@@ -1,23 +1,16 @@
 import { StorageKeys, storageHelpers } from '../storage/mmkv';
 import type { User } from '../types';
 
-/**
- * Generate simple UUID (for MVP)
- */
 function generateUUID(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Get all registered users
- */
 export function getAllUsers(): User[] {
   const users = storageHelpers.get<User[]>(StorageKeys.USERS);
   return users || [];
 }
 
 /**
- * Get user by email
  * RF-003: Search user in MMKV by email
  */
 export function getUserByEmail(email: string): User | undefined {
@@ -28,7 +21,6 @@ export function getUserByEmail(email: string): User | undefined {
 }
 
 /**
- * Create new user
  * RF-001, RF-002: Save data in MMKV users table
  */
 export function createUser(email: string, password: string): User {
@@ -37,7 +29,7 @@ export function createUser(email: string, password: string): User {
   const newUser: User = {
     id: generateUUID(),
     email: email.trim().toLowerCase(),
-    password: password, // MVP: plain text (RF-002)
+    password: password,
     createdAt: new Date().toISOString(),
   };
 
@@ -48,7 +40,6 @@ export function createUser(email: string, password: string): User {
 }
 
 /**
- * Validate login credentials
  * RF-003: Validate password
  */
 export function validateCredentials(
@@ -61,7 +52,6 @@ export function validateCredentials(
     return null;
   }
 
-  // MVP: simple password comparison (RF-002)
   if (user.password !== password) {
     return null;
   }
@@ -70,7 +60,6 @@ export function validateCredentials(
 }
 
 /**
- * Save current user (session)
  * RF-004: Save currentUser in MMKV after successful login
  */
 export function setCurrentUser(user: User): void {
@@ -82,7 +71,6 @@ export function setCurrentUser(user: User): void {
 }
 
 /**
- * Get current user (session)
  * RF-004: Check currentUser when opening the app
  */
 export function getCurrentUser(): { id: string; email: string } | undefined {
@@ -92,7 +80,6 @@ export function getCurrentUser(): { id: string; email: string } | undefined {
 }
 
 /**
- * Remove current user (logout)
  * RF-005: Remove currentUser from MMKV
  */
 export function clearCurrentUser(): void {

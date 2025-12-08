@@ -108,7 +108,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
 
-	// Recipe form state
 	const [showRecipeForm, setShowRecipeForm] = useState(false);
 	const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 	const [recipeFormData, setRecipeFormData] = useState({
@@ -124,7 +123,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 		ingredientes?: string;
 	}>({});
 
-	// Audio recording state
 	const audioRecorderPlayerRef = useRef(AudioRecorderPlayer);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isProcessingAudio, setIsProcessingAudio] = useState(false);
@@ -149,7 +147,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	const loadData = useCallback(() => {
 		console.log("🔄 [POSSIBLE ITEMS] Carregando dados...");
 
-		// RF-029: Load all recipes
 		const allRecipes = getAllRecipes();
 		console.log("📚 [POSSIBLE ITEMS] Receitas carregadas:", allRecipes.length);
 		console.log(
@@ -162,7 +159,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 		);
 		setRecipes(allRecipes);
 
-		// RF-029: Validate and restore selected recipes
 		const validatedIds = validateSelectedRecipes();
 		console.log(
 			"✅ [POSSIBLE ITEMS] IDs de receitas selecionadas (validados):",
@@ -170,7 +166,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 		);
 		setSelectedRecipeIdsState(validatedIds);
 
-		// RF-033: Restore AI output
 		const savedOutput = getAIOutput();
 		if (savedOutput?.resultado) {
 			console.log(
@@ -213,7 +208,7 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 
 		console.log("📋 [POSSIBLE ITEMS] Nova seleção:", newSelection);
 		setSelectedRecipeIdsState(newSelection);
-		// RF-029: Save selection immediately
+
 		setSelectedRecipeIds(newSelection);
 		console.log("💾 [POSSIBLE ITEMS] Seleção salva no storage");
 	};
@@ -231,7 +226,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 		setShowRecipeForm(true);
 	};
 
-	// Audio recording functions
 	const requestMicrophonePermission = async (): Promise<boolean> => {
 		if (Platform.OS !== "android") {
 			return true;
@@ -366,7 +360,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 				return;
 			}
 
-			// Buscar itens no estoque e criar ingredientes editáveis
 			const stockItems = getAllStockItems();
 			console.log("🔍 [RECIPE AUDIO] Buscando itens no estoque...");
 
@@ -375,7 +368,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 			for (const extractedItem of extractedItems) {
 				console.log(`🔍 [RECIPE AUDIO] Processando: "${extractedItem.nome}"`);
 
-				// Buscar item similar no estoque
 				const similarItem = findBestMatch(extractedItem.nome, stockItems, 0.7);
 
 				if (similarItem) {
@@ -383,12 +375,10 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 						`✅ [RECIPE AUDIO] Item encontrado no estoque: "${similarItem.nome}"`,
 					);
 
-					// Converter unidade se necessário
 					let quantidade = extractedItem.quantidade;
 					let unidade = extractedItem.unidade;
 
 					if (extractedItem.unidade !== similarItem.unidade) {
-						// Verificar se são unidades compatíveis
 						const compatibleUnits = getCompatibleUnits(similarItem.unidade);
 						if (compatibleUnits.includes(extractedItem.unidade)) {
 							const convertedQty = convertUnit(
@@ -420,7 +410,7 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 						`O ingrediente "${extractedItem.nome}" não foi encontrado no estoque. Ele será adicionado como novo item, mas você precisará selecioná-lo manualmente depois.`,
 						[{ text: "OK" }],
 					);
-					// Adicionar como novo ingrediente (sem itemEstoqueId, usuário precisará selecionar depois)
+
 					newIngredients.push({
 						id: `${Date.now()}-${Math.random()}`,
 						itemEstoqueId: "",
@@ -435,7 +425,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 				`✅ [RECIPE AUDIO] ${newIngredients.length} ingredientes processados`,
 			);
 
-			// Adicionar aos ingredientes existentes
 			setRecipeIngredients([...recipeIngredients, ...newIngredients]);
 
 			Alert.alert(
@@ -545,12 +534,10 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 			`🔧 [POSSIBLE ITEMS] Alterando ingrediente ${ingredientId}: selecionado "${stockItem.nome}" (${stockItem.quantidade} ${UNIT_LABELS[stockItem.unidade]})`,
 		);
 
-		// Get current ingredient
 		const currentIngredient = recipeIngredients.find(
 			(ing) => ing.id === ingredientId,
 		);
 
-		// Convert quantity if unit changed
 		let quantidade = currentIngredient?.quantidade || "";
 		if (currentIngredient && currentIngredient.unidade !== stockItem.unidade) {
 			const qty = parseFloat(currentIngredient.quantidade);
@@ -574,7 +561,7 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 							...ing,
 							itemEstoqueId: stockItemId,
 							nome: stockItem.nome,
-							unidade: stockItem.unidade, // RF-024: Auto-fill unit from stock item
+							unidade: stockItem.unidade,
 							quantidade: quantidade,
 						}
 					: ing,
@@ -592,7 +579,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 		const currentQty = parseFloat(ingredient.quantidade);
 		if (Number.isNaN(currentQty)) return;
 
-		// Check if units are compatible
 		const compatibleUnits = getCompatibleUnits(ingredient.unidade);
 		if (!compatibleUnits.includes(newUnit)) {
 			console.warn(
@@ -601,7 +587,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 			return;
 		}
 
-		// Convert quantity
 		const convertedQty = convertUnit(currentQty, ingredient.unidade, newUnit);
 		console.log(
 			`🔄 [POSSIBLE ITEMS] Convertendo ${currentQty} ${ingredient.unidade} → ${convertedQty} ${newUnit}`,
@@ -640,7 +625,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 			errors.ingredientes = "Adicione pelo menos um ingrediente";
 		}
 
-		// Validate all ingredients
 		for (const ing of recipeIngredients) {
 			if (!ing.itemEstoqueId) {
 				errors.ingredientes =
@@ -654,7 +638,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 			}
 		}
 
-		// Check for duplicate ingredients
 		const itemIds = recipeIngredients.map((ing) => ing.itemEstoqueId);
 		const uniqueItemIds = new Set(itemIds);
 		if (itemIds.length !== uniqueItemIds.size) {
@@ -745,7 +728,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 		setIsGenerating(true);
 
 		try {
-			// RF-030: Generate stock report
 			const stockItems = getAllStockItems();
 			console.log("📦 [POSSIBLE ITEMS] Itens no estoque:", stockItems.length);
 			console.log(
@@ -763,7 +745,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 				JSON.stringify(stockReport, null, 2),
 			);
 
-			// RF-030: Get selected recipes with current stock quantities
 			const selectedRecipes = getRecipesByIds(selectedRecipeIds);
 			console.log(
 				"📋 [POSSIBLE ITEMS] Receitas selecionadas carregadas:",
@@ -805,7 +786,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 				JSON.stringify(recipesWithStock, null, 2),
 			);
 
-			// RF-031: Send to OpenAI
 			console.log("🤖 [POSSIBLE ITEMS] Enviando dados para OpenAI...");
 			const result = await calculateProductionPotential(
 				recipesWithStock,
@@ -821,7 +801,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 				result.length,
 			);
 
-			// RF-032: Validate completeness
 			const resultRecipeNames = result.map((r) => r.receita);
 			const missingRecipes = selectedRecipes.filter(
 				(r) => !resultRecipeNames.includes(r.nome),
@@ -852,7 +831,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 				);
 			}
 
-			// RF-033: Save output
 			const output = {
 				timestamp: new Date().toISOString(),
 				resultado: result,
@@ -864,7 +842,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 			saveAIOutput(output);
 			setAIOutput(result);
 
-			// Sort by quantity (highest first)
 			result.sort((a, b) => b.quantidadePossivel - a.quantidadePossivel);
 			console.log(
 				"📊 [POSSIBLE ITEMS] Resultado ordenado:",

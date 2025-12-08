@@ -6,44 +6,35 @@ import { OPENAI_API_KEY } from '@env';
 import type { ExtractedInvoiceItem, Unit } from '../types';
 import { normalizeUnit } from '../utils/unitConversion';
 
-// React Native FormData file type
 type ReactNativeFile = {
   uri: string;
   type: string;
   name: string;
 };
 
-// API Configuration
 const OPENAI_API_BASE_URL = 'https://api.openai.com/v1';
 const CHAT_COMPLETIONS_ENDPOINT = `${OPENAI_API_BASE_URL}/chat/completions`;
 const AUDIO_TRANSCRIPTIONS_ENDPOINT = `${OPENAI_API_BASE_URL}/audio/transcriptions`;
 
-// Models
 const GPT_MODEL = 'gpt-4o-mini';
 const VOICE_TRANSCRIBE_MODEL = 'gpt-4o-mini-transcribe';
 
-// Token Limits
 const MAX_TOKENS_INVOICE = 2000;
 const MAX_TOKENS_AUDIO = 2000;
 const MAX_TOKENS_PRODUCTION = 2000;
 
-// Audio Configuration
 const AUDIO_LANGUAGE = 'pt';
 const AUDIO_MIME_TYPE = 'audio/mp4';
 const AUDIO_FILE_NAME = 'audio.mp4';
 
-// Content Types
 const CONTENT_TYPE_JSON = 'application/json';
 
-// HTTP Status Codes
 const HTTP_STATUS_TOO_MANY_REQUESTS = 429;
 const HTTP_STATUS_UNAUTHORIZED = 401;
 const HTTP_STATUS_PAYLOAD_TOO_LARGE = 413;
 
-// Error Codes
 const ERROR_CODE_INSUFFICIENT_QUOTA = 'insufficient_quota';
 
-// Error Messages
 const ERROR_MESSAGES = {
   API_KEY_NOT_CONFIGURED:
     'OPENAI_API_KEY não configurada. Configure no arquivo .env antes de usar os serviços de IA.',
@@ -58,11 +49,9 @@ const ERROR_MESSAGES = {
     'Imagem muito grande. Por favor, capture uma imagem com menor resolução.',
 } as const;
 
-// Regex Patterns
 const JSON_ARRAY_PATTERN = /\[[\s\S]*\]/;
 const JSON_OBJECT_PATTERN = /\{[\s\S]*\}/;
 
-// Prompt Templates
 const UNIT_DESCRIPTIONS = `IMPORTANTE: A unidade de medida DEVE ser uma das seguintes opções (use exatamente como escrito):
 - "kg" (quilogramas)
 - "g" (gramas)
@@ -371,7 +360,7 @@ export async function extractItemsFromAudio(
       headers: {
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
-      // @ts-ignore - React Native FormData type incompatibility
+
       body: formData,
     });
 
@@ -471,7 +460,6 @@ export async function extractItemsFromAudio(
       'caracteres',
     );
 
-    // Check if transcription seems incomplete (too short for multiple items)
     const wordCount = text.split(/\s+/).length;
     if (wordCount < 10) {
       console.warn(

@@ -1,8 +1,5 @@
 /**
- * FlashCookie App
- * Stock Management with AI
- *
- * @format
+ * FlashCookie App - Stock Management with AI
  */
 
 import { config } from "@gluestack-ui/config";
@@ -17,7 +14,6 @@ function App() {
 	const isDarkMode = useColorScheme() === "dark";
 
 	useEffect(() => {
-		// Hide splash screen after app loads
 		SplashScreen.hide();
 	}, []);
 

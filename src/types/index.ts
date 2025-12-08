@@ -1,7 +1,4 @@
-// Tipos principais do aplicativo
-
 /**
- * Unit of measurement enum
  * RB-001: Supported units
  */
 export enum Unit {

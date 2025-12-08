@@ -1,11 +1,6 @@
 import { OPENAI_API_KEY } from '@env';
 import OpenAI from 'openai';
 
-// Configuração da API OpenAI
-// IMPORTANTE: Em produção, use variáveis de ambiente ou um backend para a chave da API
-// Por segurança, não exponha a chave diretamente no app
-// Configure a variável OPENAI_API_KEY no arquivo .env
-
 if (!OPENAI_API_KEY) {
   console.warn(
     'OPENAI_API_KEY não configurada. Configure no arquivo .env antes de usar os serviços de IA.',
@@ -14,14 +9,9 @@ if (!OPENAI_API_KEY) {
 
 export const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true, // Necessário para React Native
+  dangerouslyAllowBrowser: true,
 });
 
-/**
- * Extrai dados de uma imagem usando OCR da OpenAI
- * @param imageBase64 - Imagem em base64 ou URL
- * @param prompt - Prompt customizado para extração
- */
 export const extractDataFromImage = async (
   imageBase64: string,
   prompt?: string,
@@ -70,20 +60,15 @@ export const extractDataFromAudio = async (
   audioFile?: Blob | File,
 ): Promise<string> => {
   try {
-    // Nota: A API Whisper requer um arquivo de áudio
-    // Em React Native, você precisará converter o áudio para um formato compatível
     let file: File | Blob;
 
     if (audioFile) {
       file = audioFile;
     } else {
-      // Se for uma URI, você precisará fazer fetch e converter
-      // Esta é uma implementação simplificada - adapte conforme necessário
       const fetchResponse = await fetch(audioUri);
       file = await fetchResponse.blob();
     }
 
-    // A API OpenAI aceita File ou Blob diretamente
     const response = await openai.audio.transcriptions.create({
       file: file,
       model: 'whisper-1',

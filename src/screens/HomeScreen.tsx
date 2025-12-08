@@ -26,7 +26,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 	onLogout,
 }) => {
 	const handleLogout = () => {
-		// RF-005: Remove currentUser from MMKV and redirect to Login
 		UserRepository.clearCurrentUser();
 		if (onLogout) {
 			onLogout();
@@ -76,10 +75,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 						</Button>
 
 						<Button
-							onPress={() => {
-								console.log('🏠 [HOME] Navegando para tela de Itens Possíveis');
-								navigation.navigate("ItensPossiveis");
-							}}
+							onPress={() => navigation.navigate("ItensPossiveis")}
 							size="lg"
 							variant="solid"
 						>

@@ -29,7 +29,6 @@ export type RootStackParamList = {
 	Stock: undefined;
 };
 
-// Authentication stack (Login and Register)
 const AuthStack = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
 	return (
 		<Stack.Navigator
@@ -60,7 +59,6 @@ const AuthStack = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
 	);
 };
 
-// Main stack (Home and other authenticated screens)
 const MainStack = ({ onLogout }: { onLogout: () => void }) => {
 	return (
 		<Stack.Navigator
@@ -113,12 +111,10 @@ const MainStack = ({ onLogout }: { onLogout: () => void }) => {
 };
 
 export const AppNavigator = () => {
-	// RF-004: Check currentUser when opening the app
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
-		// Check authentication when component mounts
 		const currentUser = UserRepository.getCurrentUser();
 		setIsAuthenticated(!!currentUser);
 		setIsLoading(false);
@@ -134,7 +130,6 @@ export const AppNavigator = () => {
 	};
 
 	if (isLoading) {
-		// Can show a loading screen here
 		return null;
 	}
 

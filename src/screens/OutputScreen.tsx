@@ -259,7 +259,11 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 
 		try {
 			console.log("🎙️ [OUTPUT SCREEN] Processando áudio...");
-			const extractedItems = await extractItemsFromAudio(audioUri, undefined, 'stock_output');
+			const extractedItems = await extractItemsFromAudio(
+				audioUri,
+				undefined,
+				"stock_output",
+			);
 
 			console.log(
 				"📋 [OUTPUT SCREEN] Itens extraídos da IA:",
@@ -319,9 +323,7 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 							{ text: "Cancelar", style: "cancel" },
 							{
 								text: "Continuar",
-								onPress: () => {
-									// Continue processing other items
-								},
+								onPress: () => {},
 							},
 						],
 					);

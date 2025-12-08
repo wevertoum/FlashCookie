@@ -8,32 +8,21 @@ import { StorageKeys, storageHelpers } from '../storage/mmkv';
 import type { Recipe, RecipeIngredient } from '../types';
 import { getAllStockItems } from './stockRepository';
 
-/**
- * Generate simple UUID (for MVP)
- */
 function generateUUID(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Get all recipes
- * RF-029: Get all recipes for selection
- */
 export function getAllRecipes(): Recipe[] {
   const recipes = storageHelpers.get<Recipe[]>(StorageKeys.RECIPES);
   return recipes || [];
 }
 
-/**
- * Get recipe by ID
- */
 export function getRecipeById(id: string): Recipe | undefined {
   const recipes = getAllRecipes();
   return recipes.find(recipe => recipe.id === id);
 }
 
 /**
- * Get recipes by IDs
  * RF-029: Get selected recipes
  */
 export function getRecipesByIds(ids: string[]): Recipe[] {
@@ -42,7 +31,6 @@ export function getRecipesByIds(ids: string[]): Recipe[] {
 }
 
 /**
- * Validate recipe ingredients
  * RF-025: Validate that all ingredients reference existing stock items
  */
 export function validateRecipeIngredients(ingredients: RecipeIngredient[]): {
@@ -85,7 +73,6 @@ export function validateRecipeIngredients(ingredients: RecipeIngredient[]): {
 }
 
 /**
- * Create new recipe
  * RF-024, RF-026: Create recipe with ingredients from stock
  */
 export function createRecipe(
@@ -127,7 +114,6 @@ export function createRecipe(
 }
 
 /**
- * Update recipe
  * RF-027: Update existing recipe
  */
 export function updateRecipe(recipe: Recipe): Recipe {
@@ -167,7 +153,6 @@ export function updateRecipe(recipe: Recipe): Recipe {
 }
 
 /**
- * Delete recipe
  * RF-028: Delete recipe
  */
 export function deleteRecipe(recipeId: string): void {
@@ -176,9 +161,6 @@ export function deleteRecipe(recipeId: string): void {
   storageHelpers.set(StorageKeys.RECIPES, filteredRecipes);
 }
 
-/**
- * Recipe Repository object for backward compatibility
- */
 export const RecipeRepository = {
   getAllRecipes,
   getRecipeById,

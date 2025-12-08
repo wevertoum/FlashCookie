@@ -7,31 +7,21 @@
 import { StorageKeys, storageHelpers } from '../storage/mmkv';
 import type { StockItem, Unit } from '../types';
 
-/**
- * Generate simple UUID (for MVP)
- */
 function generateUUID(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Get all stock items
- */
 export function getAllStockItems(): StockItem[] {
   const items = storageHelpers.get<StockItem[]>(StorageKeys.STOCK);
   return items || [];
 }
 
-/**
- * Get stock item by ID
- */
 export function getStockItemById(id: string): StockItem | undefined {
   const items = getAllStockItems();
   return items.find(item => item.id === id);
 }
 
 /**
- * Create new stock item
  * RF-012: Create new item in stock
  */
 export function createStockItem(
@@ -57,7 +47,6 @@ export function createStockItem(
 }
 
 /**
- * Update stock item quantity
  * RF-012: Add quantity to existing item
  */
 export function updateStockItemQuantity(
@@ -73,7 +62,6 @@ export function updateStockItemQuantity(
 
   items[itemIndex].quantidade += quantityToAdd;
 
-  // Ensure quantity is not negative
   if (items[itemIndex].quantidade < 0) {
     items[itemIndex].quantidade = 0;
   }
@@ -85,7 +73,6 @@ export function updateStockItemQuantity(
 }
 
 /**
- * Remove quantity from stock item
  * RF-021: Remove quantity from stock
  */
 export function removeStockItemQuantity(
@@ -101,7 +88,6 @@ export function removeStockItemQuantity(
 
   items[itemIndex].quantidade -= quantityToRemove;
 
-  // Ensure quantity is not negative (zero if needed)
   if (items[itemIndex].quantidade < 0) {
     items[itemIndex].quantidade = 0;
   }
@@ -112,9 +98,6 @@ export function removeStockItemQuantity(
   return items[itemIndex];
 }
 
-/**
- * Update stock item
- */
 export function updateStockItem(item: StockItem): StockItem {
   const items = getAllStockItems();
   const itemIndex = items.findIndex(i => i.id === item.id);
@@ -133,18 +116,12 @@ export function updateStockItem(item: StockItem): StockItem {
   return items[itemIndex];
 }
 
-/**
- * Delete stock item
- */
 export function deleteStockItem(itemId: string): void {
   const items = getAllStockItems();
   const filteredItems = items.filter(item => item.id !== itemId);
   storageHelpers.set(StorageKeys.STOCK, filteredItems);
 }
 
-/**
- * Stock Repository object for backward compatibility
- */
 export const StockRepository = {
   getAllStockItems,
   getStockItemById,

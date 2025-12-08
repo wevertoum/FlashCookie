@@ -5,11 +5,10 @@
  */
 
 import { StorageKeys, storageHelpers } from '../storage/mmkv';
+import type { PossibleItemsOutput, PossibleItemsStorage } from '../types';
 import { getAllRecipes } from './recipeRepository';
-import type { PossibleItemsStorage, PossibleItemsOutput } from '../types';
 
 /**
- * Get selected recipes and AI output
  * RF-033: Get stored selection and output
  */
 export function getPossibleItemsData(): PossibleItemsStorage {
@@ -24,24 +23,17 @@ export function getPossibleItemsData(): PossibleItemsStorage {
   );
 }
 
-/**
- * Get selected recipe IDs
- */
 export function getSelectedRecipeIds(): string[] {
   const data = getPossibleItemsData();
   return data.receitasSelecionadas || [];
 }
 
-/**
- * Get AI output
- */
 export function getAIOutput(): PossibleItemsOutput | undefined {
   const data = getPossibleItemsData();
   return data.outputIA;
 }
 
 /**
- * Set selected recipe IDs
  * RF-029, RF-033: Save selected recipes
  */
 export function setSelectedRecipeIds(recipeIds: string[]): void {
@@ -54,7 +46,6 @@ export function setSelectedRecipeIds(recipeIds: string[]): void {
 }
 
 /**
- * Save AI output
  * RF-032, RF-033: Save AI output after processing
  */
 export function saveAIOutput(output: PossibleItemsOutput): void {
@@ -67,7 +58,6 @@ export function saveAIOutput(output: PossibleItemsOutput): void {
 }
 
 /**
- * Validate and clean selected recipes
  * RF-029: Remove deleted recipes from selection
  */
 export function validateSelectedRecipes(): string[] {
@@ -75,10 +65,8 @@ export function validateSelectedRecipes(): string[] {
   const allRecipes = getAllRecipes();
   const existingRecipeIds = allRecipes.map(r => r.id);
 
-  // Filter out deleted recipes
   const validIds = selectedIds.filter(id => existingRecipeIds.includes(id));
 
-  // If selection changed, update storage
   if (validIds.length !== selectedIds.length) {
     setSelectedRecipeIds(validIds);
   }
@@ -87,7 +75,6 @@ export function validateSelectedRecipes(): string[] {
 }
 
 /**
- * Clear selection and output
  * RF-033: Clear history button
  */
 export function clearPossibleItemsData(): void {
@@ -97,9 +84,6 @@ export function clearPossibleItemsData(): void {
   });
 }
 
-/**
- * Possible Items Repository object
- */
 export const PossibleItemsRepository = {
   getPossibleItemsData,
   getSelectedRecipeIds,
@@ -109,4 +93,3 @@ export const PossibleItemsRepository = {
   validateSelectedRecipes,
   clearPossibleItemsData,
 };
-
