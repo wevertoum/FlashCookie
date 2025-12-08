@@ -19,6 +19,7 @@ O aplicativo foi desenvolvido como parte de um projeto acadêmico integrador, fo
 
 Para informações detalhadas sobre o projeto, consulte os documentos na pasta `docs/`:
 
+- **[Apresentação do FlashCookie](./docs/apresentacao_flashcookie.md)** - Documento de apresentação com explicações simples das principais funcionalidades do app para pessoas não técnicas
 - **[Documento de Clarificação do Problema](./docs/documento_clarificacao_problema.md)** - Mapa de empatia e análise do problema a ser resolvido
 - **[Requisitos Funcionais MVP](./docs/requisitos_funcionais_mvp.md)** - Especificação completa dos requisitos funcionais e não funcionais
 
@@ -134,6 +135,8 @@ FlashCookie/
 
 **Descrição**: Tela inicial de autenticação do aplicativo. Permite que o usuário faça login com email e senha cadastrados, ou navegue para a tela de cadastro.
 
+![Tela de Login](./screenshots/tela_login.png)
+
 **Elementos principais**:
 
 - Campo de email
@@ -146,6 +149,8 @@ FlashCookie/
 ### Tela de Cadastro
 
 **Descrição**: Tela para criação de nova conta de usuário. Solicita email, senha e confirmação de senha para cadastro.
+
+![Tela de Cadastro](./screenshots/tela_cadastro.png)
 
 **Elementos principais**:
 
@@ -160,6 +165,8 @@ FlashCookie/
 ### Tela Home
 
 **Descrição**: Tela principal do aplicativo após login. Apresenta menu de navegação com acesso a todas as funcionalidades principais.
+
+![Tela Home](./screenshots/tela_home.png)
 
 **Elementos principais**:
 
@@ -177,6 +184,18 @@ FlashCookie/
 
 **Descrição**: Tela para adicionar itens ao estoque através da leitura de nota fiscal. Permite capturar foto da nota fiscal e processar automaticamente com IA, ou inserir itens manualmente.
 
+**Estado inicial - Seleção de imagem:**
+
+![Tela de Entrada de Estoque](./screenshots/tela_entrada_estoque.png)
+
+**Com imagem selecionada:**
+
+![Tela de Entrada de Estoque - Imagem Selecionada](./screenshots/tela_entrada_estoque_imagem_selecionada.png)
+
+**Com itens extraídos pela IA:**
+
+![Tela de Entrada de Estoque - Itens Extraídos](./screenshots/tela_entrada_estoque_imagem_selecionada_itens_extraidos.png)
+
 **Elementos principais**:
 
 - Botão "Capturar Nota Fiscal" / "Selecionar da Galeria"
@@ -193,6 +212,14 @@ FlashCookie/
 
 **Descrição**: Tela para remover itens do estoque através de comando de voz ou entrada manual. Processa o áudio com IA para extrair itens e quantidades mencionados.
 
+**Gravando áudio:**
+
+![Tela de Saída de Estoque - Gravando Áudio](./screenshots/tela_saida_gravando_audio.png)
+
+**Com item identificado:**
+
+![Tela de Saída de Estoque - Item Identificado](./screenshots/tela_saida_item_identificado.png)
+
 **Elementos principais**:
 
 - Botão "Falar o que vai usar" (gravação de áudio)
@@ -208,6 +235,8 @@ FlashCookie/
 
 **Descrição**: Tela de visualização completa do estoque atual. Lista todos os itens cadastrados com suas quantidades e unidades de medida.
 
+![Tela de Estoque](./screenshots/tela_estoque_lista.png)
+
 **Elementos principais**:
 
 - Lista de itens do estoque
@@ -221,6 +250,18 @@ FlashCookie/
 ### Tela de Itens Possíveis (Receitas)
 
 **Descrição**: Tela para gerenciar receitas e visualizar capacidade produtiva. Permite cadastrar receitas, selecionar receitas para análise e visualizar quantidades possíveis de produção calculadas pela IA.
+
+**Processando áudio durante cadastro de receita:**
+
+![Tela de Itens Possíveis - Processando Áudio](./screenshots/tela_itens_possiveis_cadastro_receita_processando_audio.png)
+
+**Listando ingredientes identificados no áudio:**
+
+![Tela de Itens Possíveis - Ingredientes Identificados](./screenshots/tela_itens_possiveis_cadastro_receita_listar_ingredientes_identificados_no_audio.png)
+
+**Relatório de potencial produtivo gerado pela IA:**
+
+![Tela de Itens Possíveis - Relatório Gerado](./screenshots/tela_itens_possiveis_mostrar_relatorio_gerado_pela_ia.png)
 
 **Elementos principais**:
 
