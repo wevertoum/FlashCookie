@@ -32,18 +32,12 @@ import {
 	ScrollView,
 	StyleSheet,
 } from "react-native";
-import Sound, {
-	type AudioSet,
-	AudioEncoderAndroidType,
-	AudioSourceAndroidType,
-	AVEncoderAudioQualityIOSType,
-} from "react-native-nitro-sound";
+import AudioRecorderPlayer from "react-native-audio-recorder-player";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AudioRecordingControls } from "../components/AudioRecordingControls";
 import { IngredientFormItem } from "../components/IngredientFormItem";
 import { ProductionPotentialResultCard } from "../components/ProductionPotentialResultCard";
 import { RecipeCard } from "../components/RecipeCard";
-import { RecipeDetailsModal } from "../components/RecipeDetailsModal";
 import type { RootStackParamList } from "../navigation/AppNavigator";
 import {
 	clearPossibleItemsData,
@@ -114,11 +108,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
 
-	// RF-034: Recipe details modal state
-	const [selectedRecipeForDetails, setSelectedRecipeForDetails] =
-		useState<Recipe | null>(null);
-	const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-
 	// Recipe form state
 	const [showRecipeForm, setShowRecipeForm] = useState(false);
 	const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
@@ -136,6 +125,7 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	}>({});
 
 	// Audio recording state
+	const audioRecorderPlayerRef = useRef(AudioRecorderPlayer);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isProcessingAudio, setIsProcessingAudio] = useState(false);
 	const [recordingPath, setRecordingPath] = useState<string | null>(null);
@@ -145,15 +135,14 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	useEffect(() => {
 		console.log("🚀 [POSSIBLE ITEMS] Tela de Itens Possíveis montada");
 
+		const audioRecorderPlayer = audioRecorderPlayerRef.current;
 		const intervalRef = recordTimeIntervalRef.current;
 
 		return () => {
 			if (intervalRef) {
 				clearInterval(intervalRef);
 			}
-			Sound.stopRecorder().catch(() => {
-				// Ignore errors on cleanup
-			});
+			audioRecorderPlayer.stopRecorder();
 		};
 	}, []);
 
@@ -282,53 +271,23 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 			}
 
 			console.log("🎤 [RECIPE AUDIO] Iniciando gravação de áudio...");
-
-			// Configure audio settings optimized for voice transcription
-			// Using cross-platform settings that work on both iOS and Android
-			const audioSet = {
-				// Common settings (work on both platforms)
-				AudioSamplingRate: 44100,
-				AudioEncodingBitRate: 128000,
-				AudioChannels: 1, // Mono is better for voice
-				// Android-specific
-				...(Platform.OS === 'android' && {
-					AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-					AudioSourceAndroid: AudioSourceAndroidType.MIC,
-				}),
-				// iOS-specific
-				...(Platform.OS === 'ios' && {
-					AVSampleRateKeyIOS: 44100,
-					// @ts-ignore - AVFormatIDKeyIOS accepts numeric value for AAC
-					AVFormatIDKeyIOS: 1633772320, // kAudioFormatMPEG4AAC (AAC format)
-					AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-					AVNumberOfChannelsKeyIOS: 1,
-					AVModeIOS: "spokenAudio", // Optimized for speech
-				}),
-			} as AudioSet;
-
-			console.log(
-				"🎤 [RECIPE AUDIO] Configurações de áudio:",
-				JSON.stringify(audioSet, null, 2),
-			);
-
-			const result = await Sound.startRecorder(
-				undefined, // Use default path
-				audioSet,
-				false // meteringEnabled
-			);
+			const audioRecorderPlayer = audioRecorderPlayerRef.current;
+			const result = await audioRecorderPlayer.startRecorder();
 			const path = typeof result === "string" ? result : result;
 			setRecordingPath(path);
 			setIsRecording(true);
 			setRecordTime("00:00");
 
-			Sound.addRecordBackListener((e: { currentPosition: number }) => {
-				const minutes = Math.floor(e.currentPosition / 1000 / 60);
-				const seconds = Math.floor((e.currentPosition / 1000) % 60);
-				setRecordTime(
-					`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
-				);
-				return;
-			});
+			audioRecorderPlayer.addRecordBackListener(
+				(e: { currentPosition: number }) => {
+					const minutes = Math.floor(e.currentPosition / 1000 / 60);
+					const seconds = Math.floor((e.currentPosition / 1000) % 60);
+					setRecordTime(
+						`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+					);
+					return;
+				},
+			);
 			console.log("🎤 [RECIPE AUDIO] Gravação iniciada");
 		} catch (error) {
 			console.error("Error starting recording:", error);
@@ -342,8 +301,9 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	const handleStopRecording = async () => {
 		try {
 			console.log("⏹️ [RECIPE AUDIO] Parando gravação...");
-			const result = await Sound.stopRecorder();
-			Sound.removeRecordBackListener();
+			const audioRecorderPlayer = audioRecorderPlayerRef.current;
+			const result = await audioRecorderPlayer.stopRecorder();
+			audioRecorderPlayer.removeRecordBackListener();
 			setIsRecording(false);
 			if (recordTimeIntervalRef.current) {
 				clearInterval(recordTimeIntervalRef.current);
@@ -361,8 +321,9 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 	const handleCancelRecording = async () => {
 		try {
 			console.log("❌ [RECIPE AUDIO] Cancelando gravação...");
-			await Sound.stopRecorder();
-			Sound.removeRecordBackListener();
+			const audioRecorderPlayer = audioRecorderPlayerRef.current;
+			await audioRecorderPlayer.stopRecorder();
+			audioRecorderPlayer.removeRecordBackListener();
 			setIsRecording(false);
 			setRecordingPath(null);
 			setRecordTime("00:00");
@@ -944,23 +905,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 		);
 	};
 
-	// RF-034: Handle view recipe details
-	const handleViewRecipeDetails = (recipe: Recipe) => {
-		setSelectedRecipeForDetails(recipe);
-		setIsDetailsModalOpen(true);
-	};
-
-	// RF-034: Get production potential for a specific recipe
-	const getProductionPotentialForRecipe = (recipe: Recipe) => {
-		return aiOutput.find((result) => result.receita === recipe.nome);
-	};
-
-	// RF-034: Close details modal
-	const handleCloseDetailsModal = () => {
-		setIsDetailsModalOpen(false);
-		setSelectedRecipeForDetails(null);
-	};
-
 	const stockItems = getAllStockItems();
 
 	return (
@@ -1062,7 +1006,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 											onToggleSelection={handleToggleRecipeSelection}
 											onEdit={handleEditRecipe}
 											onDelete={handleDeleteRecipe}
-											onViewDetails={handleViewRecipeDetails}
 										/>
 									))}
 								</VStack>
@@ -1259,18 +1202,6 @@ export const PossibleItemsScreen: React.FC<PossibleItemsScreenProps> = ({
 					</ScrollView>
 				</KeyboardAvoidingView>
 			)}
-
-			{/* RF-034: Recipe Details Modal */}
-			<RecipeDetailsModal
-				isOpen={isDetailsModalOpen}
-				onClose={handleCloseDetailsModal}
-				recipe={selectedRecipeForDetails}
-				productionPotential={
-					selectedRecipeForDetails
-						? getProductionPotentialForRecipe(selectedRecipeForDetails)
-						: undefined
-				}
-			/>
 		</SafeAreaView>
 	);
 };

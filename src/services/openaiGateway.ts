@@ -20,7 +20,7 @@ const AUDIO_TRANSCRIPTIONS_ENDPOINT = `${OPENAI_API_BASE_URL}/audio/transcriptio
 
 // Models
 const GPT_MODEL = 'gpt-4o-mini';
-const WHISPER_MODEL = 'whisper-1';
+const VOICE_TRANSCRIBE_MODEL = 'gpt-4o-mini-transcribe';
 
 // Token Limits
 const MAX_TOKENS_INVOICE = 2000;
@@ -84,7 +84,48 @@ Retorne em formato JSON estruturado: [{"nome": "...", "quantidade": ..., "unidad
 Apenas retorne o JSON, sem texto adicional.`;
 };
 
-const getAudioExtractionPrompt = (transcriptionText: string): string => {
+const getAudioExtractionPrompt = (
+  transcriptionText: string,
+  context: 'recipe' | 'stock_output' = 'recipe',
+): string => {
+  if (context === 'stock_output') {
+    return `Você é um assistente especializado em extrair itens e quantidades que estão saindo do estoque.
+
+IMPORTANTE: Extraia TODOS os itens e quantidades mencionados no texto. Não deixe nenhum de fora.
+
+${UNIT_DESCRIPTIONS}
+
+INSTRUÇÕES:
+- Analise o texto cuidadosamente e identifique TODOS os itens mencionados que estão saindo do estoque
+- Para cada item, identifique sua quantidade e unidade de medida
+- Se a quantidade não for mencionada explicitamente, assuma 1 unidade (use "un" como unidade)
+- Retorne um array JSON com TODOS os itens encontrados
+- Se o texto mencionar múltiplos itens, todos devem aparecer no resultado
+- Ignore palavras como "registrar", "saída", "remover", "dar baixa" - foque apenas nos itens e quantidades
+
+EXEMPLOS:
+Texto: "Registrar a saída de uma coxinha da asa"
+Resultado: [{"nome": "coxinha da asa", "quantidade": 1, "unidade": "un"}]
+
+Texto: "vou usar 2kg de farinha e 500g de açúcar"
+Resultado: [{"nome": "farinha", "quantidade": 2, "unidade": "kg"}, {"nome": "açúcar", "quantidade": 500, "unidade": "g"}]
+
+Texto: "preciso remover 1 litro de leite, 3 ovos e 250 gramas de manteiga"
+Resultado: [{"nome": "leite", "quantidade": 1, "unidade": "L"}, {"nome": "ovos", "quantidade": 3, "unidade": "un"}, {"nome": "manteiga", "quantidade": 250, "unidade": "g"}]
+
+Texto: "dar baixa em 500g de farinha, 200g de açúcar, 100g de manteiga, 2 ovos"
+Resultado: [{"nome": "farinha", "quantidade": 500, "unidade": "g"}, {"nome": "açúcar", "quantidade": 200, "unidade": "g"}, {"nome": "manteiga", "quantidade": 100, "unidade": "g"}, {"nome": "ovos", "quantidade": 2, "unidade": "un"}]
+
+Texto: "saída de 3 pães"
+Resultado: [{"nome": "pães", "quantidade": 3, "unidade": "un"}]
+
+Retorne APENAS o JSON em formato de array: [{"nome": "...", "quantidade": ..., "unidade": "..."}]
+Não adicione explicações, comentários ou texto adicional. Apenas o JSON.
+
+Texto a analisar:
+${transcriptionText}`;
+  }
+
   return `Você é um assistente especializado em extrair ingredientes e quantidades de receitas culinárias.
 
 IMPORTANTE: Extraia TODOS os ingredientes e quantidades mencionados no texto. Não deixe nenhum de fora.
@@ -291,10 +332,14 @@ export async function extractInvoiceItems(
 /**
  * Extract items from audio transcription
  * RF-016: Process audio with Whisper + GPT
+ * @param audioUri - URI of the audio file
+ * @param audioFile - Optional audio file blob
+ * @param context - Context of extraction: 'recipe' for recipe ingredients, 'stock_output' for stock removal
  */
 export async function extractItemsFromAudio(
   audioUri: string,
   audioFile?: Blob | File,
+  context: 'recipe' | 'stock_output' = 'recipe',
 ): Promise<ExtractedInvoiceItem[]> {
   try {
     if (!OPENAI_API_KEY) {
@@ -318,7 +363,7 @@ export async function extractItemsFromAudio(
       formData.append('file', blob);
     }
 
-    formData.append('model', WHISPER_MODEL);
+    formData.append('model', VOICE_TRANSCRIBE_MODEL);
     formData.append('language', AUDIO_LANGUAGE);
 
     const transcriptionResponse = await fetch(AUDIO_TRANSCRIPTIONS_ENDPOINT, {
@@ -367,11 +412,12 @@ export async function extractItemsFromAudio(
       throw new Error('Transcrição de áudio vazia. Tente gravar novamente.');
     }
 
-    const prompt = getAudioExtractionPrompt(text);
+    const prompt = getAudioExtractionPrompt(text, context);
     console.log(
       '📝 [OPENAI] Prompt completo sendo enviado (primeiros 500 caracteres):',
       prompt.substring(0, 500),
     );
+    console.log('📝 [OPENAI] Contexto:', context);
 
     const chatResponse = await fetch(CHAT_COMPLETIONS_ENDPOINT, {
       method: 'POST',

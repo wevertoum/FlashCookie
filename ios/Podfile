@@ -30,39 +30,5 @@ target 'FlashCookie' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
-    
-    # Fix Swift compilation issues for NitroSound and Yoga header paths
-    react_native_path = config[:reactNativePath] || File.expand_path('../node_modules/react-native', __dir__)
-    yoga_path_abs = File.expand_path(File.join(react_native_path, 'ReactCommon/yoga/yoga'))
-    
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |build_config|
-        # Set minimum iOS version to 16.0 for all pods
-        build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
-        if target.name == 'NitroSound'
-          build_config.build_settings['SWIFT_VERSION'] = '5.0'
-          build_config.build_settings['SWIFT_STRICT_CONCURRENCY'] = 'targeted'
-          build_config.build_settings['SWIFT_SUPPRESS_WARNINGS'] = 'YES'
-          # Use wholemodule compilation to avoid Swift 6 has_value bug
-          # This is a workaround for Xcode < 16.4 (see issue #718)
-          build_config.build_settings['SWIFT_COMPILATION_MODE'] = 'wholemodule'
-          build_config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
-          build_config.build_settings['GCC_OPTIMIZATION_LEVEL'] = '0'
-          # Disable module interface to avoid conflicts
-          build_config.build_settings['SWIFT_EMIT_MODULE_INTERFACE'] = 'NO'
-          build_config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = '$(inherited) SWIFT_DISABLE_REFLECTION_METADATA'
-          build_config.build_settings['SWIFT_EMIT_MODULE'] = 'NO'
-        end
-        # Fix Yoga header search paths - need to add the yoga directory itself
-        if target.name == 'Yoga' && File.directory?(yoga_path_abs)
-          current_paths = build_config.build_settings['HEADER_SEARCH_PATHS'] || '$(inherited)'
-          if current_paths.is_a?(String)
-            build_config.build_settings['HEADER_SEARCH_PATHS'] = "#{current_paths} \"#{yoga_path_abs}\""
-          elsif current_paths.is_a?(Array)
-            build_config.build_settings['HEADER_SEARCH_PATHS'] = current_paths + ["\"#{yoga_path_abs}\""]
-          end
-        end
-      end
-    end
   end
 end

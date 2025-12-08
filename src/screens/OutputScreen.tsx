@@ -35,12 +35,7 @@ import {
 	ScrollView,
 	StyleSheet,
 } from "react-native";
-import Sound, {
-	AudioEncoderAndroidType,
-	type AudioSet,
-	AudioSourceAndroidType,
-	AVEncoderAudioQualityIOSType,
-} from "react-native-nitro-sound";
+import AudioRecorderPlayer from "react-native-audio-recorder-player";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ItemToRemoveCard } from "../components/ItemToRemoveCard";
 import type { RootStackParamList } from "../navigation/AppNavigator";
@@ -123,6 +118,7 @@ const areUnitsCompatible = (fromUnit: Unit, toUnit: Unit): boolean => {
 };
 
 export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
+	const audioRecorderPlayerRef = useRef(AudioRecorderPlayer);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [showManualEntry, setShowManualEntry] = useState(false);
@@ -149,14 +145,13 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 	);
 
 	useEffect(() => {
+		const audioRecorderPlayer = audioRecorderPlayerRef.current;
 		const intervalRef = recordTimeIntervalRef.current;
 		return () => {
 			if (intervalRef) {
 				clearInterval(intervalRef);
 			}
-			Sound.stopRecorder().catch(() => {
-				// Ignore errors on cleanup
-			});
+			audioRecorderPlayer.stopRecorder();
 		};
 	}, []);
 
@@ -198,52 +193,23 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 				return;
 			}
 
-			// Configure audio settings optimized for voice transcription
-			// Using cross-platform settings that work on both iOS and Android
-			const audioSet = {
-				// Common settings (work on both platforms)
-				AudioSamplingRate: 44100,
-				AudioEncodingBitRate: 128000,
-				AudioChannels: 1, // Mono is better for voice
-				// Android-specific
-				...(Platform.OS === "android" && {
-					AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-					AudioSourceAndroid: AudioSourceAndroidType.MIC,
-				}),
-				// iOS-specific
-				...(Platform.OS === "ios" && {
-					AVSampleRateKeyIOS: 44100,
-					// @ts-ignore - AVFormatIDKeyIOS accepts numeric value for AAC
-					AVFormatIDKeyIOS: 1633772320, // kAudioFormatMPEG4AAC (AAC format)
-					AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-					AVNumberOfChannelsKeyIOS: 1,
-					AVModeIOS: "spokenAudio", // Optimized for speech
-				}),
-			} as AudioSet;
-
-			console.log(
-				"🎤 [OUTPUT] Iniciando gravação com configurações:",
-				audioSet,
-			);
-
-			const result = await Sound.startRecorder(
-				undefined, // Use default path
-				audioSet,
-				false, // meteringEnabled
-			);
+			const audioRecorderPlayer = audioRecorderPlayerRef.current;
+			const result = await audioRecorderPlayer.startRecorder();
 			const path = typeof result === "string" ? result : result;
 			setRecordingPath(path);
 			setIsRecording(true);
 			setRecordTime("00:00");
 
-			Sound.addRecordBackListener((e: { currentPosition: number }) => {
-				const minutes = Math.floor(e.currentPosition / 1000 / 60);
-				const seconds = Math.floor((e.currentPosition / 1000) % 60);
-				setRecordTime(
-					`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
-				);
-				return;
-			});
+			audioRecorderPlayer.addRecordBackListener(
+				(e: { currentPosition: number }) => {
+					const minutes = Math.floor(e.currentPosition / 1000 / 60);
+					const seconds = Math.floor((e.currentPosition / 1000) % 60);
+					setRecordTime(
+						`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+					);
+					return;
+				},
+			);
 		} catch (error) {
 			console.error("Error starting recording:", error);
 			Alert.alert(
@@ -255,8 +221,9 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 
 	const handleStopRecording = async () => {
 		try {
-			const result = await Sound.stopRecorder();
-			Sound.removeRecordBackListener();
+			const audioRecorderPlayer = audioRecorderPlayerRef.current;
+			const result = await audioRecorderPlayer.stopRecorder();
+			audioRecorderPlayer.removeRecordBackListener();
 			setIsRecording(false);
 			if (recordTimeIntervalRef.current) {
 				clearInterval(recordTimeIntervalRef.current);
@@ -273,8 +240,9 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 
 	const handleCancelRecording = async () => {
 		try {
-			await Sound.stopRecorder();
-			Sound.removeRecordBackListener();
+			const audioRecorderPlayer = audioRecorderPlayerRef.current;
+			await audioRecorderPlayer.stopRecorder();
+			audioRecorderPlayer.removeRecordBackListener();
 			setIsRecording(false);
 			setRecordingPath(null);
 			setRecordTime("00:00");
@@ -291,7 +259,7 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 
 		try {
 			console.log("🎙️ [OUTPUT SCREEN] Processando áudio...");
-			const extractedItems = await extractItemsFromAudio(audioUri);
+			const extractedItems = await extractItemsFromAudio(audioUri, undefined, 'stock_output');
 
 			console.log(
 				"📋 [OUTPUT SCREEN] Itens extraídos da IA:",
