@@ -356,15 +356,22 @@ export async function extractItemsFromAudio(
     const text = transcriptionData.text || '';
 
     console.log('🎤 [OPENAI] Transcrição do áudio:', text);
-    console.log('📏 [OPENAI] Tamanho da transcrição:', text.length, 'caracteres');
+    console.log(
+      '📏 [OPENAI] Tamanho da transcrição:',
+      text.length,
+      'caracteres',
+    );
     console.log('📏 [OPENAI] Número de palavras:', text.split(/\s+/).length);
-    
+
     if (!text || text.trim().length === 0) {
       throw new Error('Transcrição de áudio vazia. Tente gravar novamente.');
     }
 
     const prompt = getAudioExtractionPrompt(text);
-    console.log('📝 [OPENAI] Prompt completo sendo enviado (primeiros 500 caracteres):', prompt.substring(0, 500));
+    console.log(
+      '📝 [OPENAI] Prompt completo sendo enviado (primeiros 500 caracteres):',
+      prompt.substring(0, 500),
+    );
 
     const chatResponse = await fetch(CHAT_COMPLETIONS_ENDPOINT, {
       method: 'POST',
@@ -412,12 +419,20 @@ export async function extractItemsFromAudio(
     const content = chatData.choices?.[0]?.message?.content || '';
 
     console.log('🤖 [OPENAI] Resposta completa da IA:', content);
-    console.log('📏 [OPENAI] Tamanho da resposta:', content.length, 'caracteres');
+    console.log(
+      '📏 [OPENAI] Tamanho da resposta:',
+      content.length,
+      'caracteres',
+    );
 
     // Check if transcription seems incomplete (too short for multiple items)
     const wordCount = text.split(/\s+/).length;
     if (wordCount < 10) {
-      console.warn('⚠️ [OPENAI] Transcrição parece curta (', wordCount, 'palavras). Verifique se todos os ingredientes foram capturados.');
+      console.warn(
+        '⚠️ [OPENAI] Transcrição parece curta (',
+        wordCount,
+        'palavras). Verifique se todos os ingredientes foram capturados.',
+      );
     }
 
     const jsonMatch = content.match(JSON_ARRAY_PATTERN);
@@ -433,9 +448,13 @@ export async function extractItemsFromAudio(
         JSON.stringify(rawItems, null, 2),
       );
       console.log('📊 [OPENAI] Total de itens extraídos:', rawItems.length);
-      
+
       if (rawItems.length === 1 && wordCount > 15) {
-        console.warn('⚠️ [OPENAI] Apenas 1 item extraído, mas a transcrição tem', wordCount, 'palavras. Pode haver mais itens que não foram capturados.');
+        console.warn(
+          '⚠️ [OPENAI] Apenas 1 item extraído, mas a transcrição tem',
+          wordCount,
+          'palavras. Pode haver mais itens que não foram capturados.',
+        );
       }
 
       const items: ExtractedInvoiceItem[] = rawItems
@@ -498,9 +517,17 @@ export async function calculateProductionPotential(
   }>
 > {
   try {
-    console.log('📊 [PRODUCTION POTENTIAL] Iniciando cálculo de potencial produtivo');
-    console.log('📋 [PRODUCTION POTENTIAL] Receitas recebidas:', JSON.stringify(recipes, null, 2));
-    console.log('📦 [PRODUCTION POTENTIAL] Estoque recebido:', JSON.stringify(stock, null, 2));
+    console.log(
+      '📊 [PRODUCTION POTENTIAL] Iniciando cálculo de potencial produtivo',
+    );
+    console.log(
+      '📋 [PRODUCTION POTENTIAL] Receitas recebidas:',
+      JSON.stringify(recipes, null, 2),
+    );
+    console.log(
+      '📦 [PRODUCTION POTENTIAL] Estoque recebido:',
+      JSON.stringify(stock, null, 2),
+    );
 
     const prompt = getProductionPotentialPrompt(recipes, stock);
     console.log('💬 [PRODUCTION POTENTIAL] Prompt sendo enviado para IA:');
@@ -516,7 +543,10 @@ export async function calculateProductionPotential(
       ],
       max_tokens: MAX_TOKENS_PRODUCTION,
     };
-    console.log('📤 [PRODUCTION POTENTIAL] Request body:', JSON.stringify(requestBody, null, 2));
+    console.log(
+      '📤 [PRODUCTION POTENTIAL] Request body:',
+      JSON.stringify(requestBody, null, 2),
+    );
 
     const response = await fetch(CHAT_COMPLETIONS_ENDPOINT, {
       method: 'POST',
@@ -527,7 +557,11 @@ export async function calculateProductionPotential(
       body: JSON.stringify(requestBody),
     });
 
-    console.log('📥 [PRODUCTION POTENTIAL] Status da resposta:', response.status, response.statusText);
+    console.log(
+      '📥 [PRODUCTION POTENTIAL] Status da resposta:',
+      response.status,
+      response.statusText,
+    );
 
     if (!response.ok) {
       let errorMessage = `OpenAI API error: ${response.status} ${response.statusText}`;
@@ -560,8 +594,11 @@ export async function calculateProductionPotential(
 
     const jsonMatch = content.match(JSON_OBJECT_PATTERN);
     if (jsonMatch) {
-      console.log('✅ [PRODUCTION POTENTIAL] JSON encontrado na resposta:', jsonMatch[0]);
-      
+      console.log(
+        '✅ [PRODUCTION POTENTIAL] JSON encontrado na resposta:',
+        jsonMatch[0],
+      );
+
       const parsedResult = JSON.parse(jsonMatch[0]) as {
         potencialProdutivo: Array<{
           receita: string;
@@ -578,8 +615,11 @@ export async function calculateProductionPotential(
           }>;
         }>;
       };
-      
-      console.log('🔍 [PRODUCTION POTENTIAL] Resultado parseado:', JSON.stringify(parsedResult, null, 2));
+
+      console.log(
+        '🔍 [PRODUCTION POTENTIAL] Resultado parseado:',
+        JSON.stringify(parsedResult, null, 2),
+      );
 
       const roundNumber = (value: number): number => {
         if (Number.isInteger(value)) {
@@ -588,26 +628,36 @@ export async function calculateProductionPotential(
         return Math.round(value * 10000) / 10000;
       };
 
-      const processedResult = (parsedResult.potencialProdutivo || []).map(item => ({
-        receita: item.receita,
-        quantidadePossivel: roundNumber(item.quantidadePossivel),
-        unidade: normalizeUnit(item.unidade),
-        alertas: item.alertas?.map(alerta => ({
-          ...alerta,
-          quantidadeNecessaria: roundNumber(alerta.quantidadeNecessaria),
-          quantidadeDisponivel: roundNumber(alerta.quantidadeDisponivel),
-          unidadeNecessaria: normalizeUnit(alerta.unidadeNecessaria),
-          unidadeDisponivel: normalizeUnit(alerta.unidadeDisponivel),
-        })),
-      }));
+      const processedResult = (parsedResult.potencialProdutivo || []).map(
+        item => ({
+          receita: item.receita,
+          quantidadePossivel: roundNumber(item.quantidadePossivel),
+          unidade: normalizeUnit(item.unidade),
+          alertas: item.alertas?.map(alerta => ({
+            ...alerta,
+            quantidadeNecessaria: roundNumber(alerta.quantidadeNecessaria),
+            quantidadeDisponivel: roundNumber(alerta.quantidadeDisponivel),
+            unidadeNecessaria: normalizeUnit(alerta.unidadeNecessaria),
+            unidadeDisponivel: normalizeUnit(alerta.unidadeDisponivel),
+          })),
+        }),
+      );
 
-      console.log('✨ [PRODUCTION POTENTIAL] Resultado processado e normalizado:', JSON.stringify(processedResult, null, 2));
-      console.log('📊 [PRODUCTION POTENTIAL] Total de receitas processadas:', processedResult.length);
+      console.log(
+        '✨ [PRODUCTION POTENTIAL] Resultado processado e normalizado:',
+        JSON.stringify(processedResult, null, 2),
+      );
+      console.log(
+        '📊 [PRODUCTION POTENTIAL] Total de receitas processadas:',
+        processedResult.length,
+      );
 
       return processedResult;
     }
 
-    console.error('❌ [PRODUCTION POTENTIAL] JSON não encontrado na resposta da IA');
+    console.error(
+      '❌ [PRODUCTION POTENTIAL] JSON não encontrado na resposta da IA',
+    );
     console.error('📄 [PRODUCTION POTENTIAL] Conteúdo recebido:', content);
     throw new Error(ERROR_MESSAGES.INVALID_RESPONSE_FORMAT);
   } catch (error) {

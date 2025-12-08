@@ -18,7 +18,7 @@ import {
 } from "@gluestack-ui/themed";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	Alert,
 	Image,
@@ -45,6 +45,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 	const [emailError, setEmailError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const isMountedRef = useRef(true);
+
+	useEffect(() => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
 
 	const validateForm = (): boolean => {
 		let isValid = true;
@@ -83,8 +91,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
 			if (!user) {
 				// RF-003: If invalid: display error message
-				Alert.alert("Erro", "Email ou senha incorretos");
 				setIsLoading(false);
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						setTimeout(() => {
+							if (isMountedRef.current) {
+								try {
+									Alert.alert("Erro", "Email ou senha incorretos");
+								} catch (error) {
+									console.warn("Failed to show alert:", error);
+								}
+							}
+						}, 800);
+					});
+				});
 				return;
 			}
 
@@ -92,11 +112,26 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 			UserRepository.setCurrentUser(user);
 
 			// RF-003: If valid: redirect to Home screen
+			setIsLoading(false);
 			onLoginSuccess();
 		} catch {
-			Alert.alert("Erro", "Ocorreu um erro ao fazer login. Tente novamente.");
-		} finally {
 			setIsLoading(false);
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					setTimeout(() => {
+						if (isMountedRef.current) {
+							try {
+								Alert.alert(
+									"Erro",
+									"Ocorreu um erro ao fazer login. Tente novamente.",
+								);
+							} catch (error) {
+								console.warn("Failed to show alert:", error);
+							}
+						}
+					}, 800);
+				});
+			});
 		}
 	};
 

@@ -35,7 +35,12 @@ import {
 	ScrollView,
 	StyleSheet,
 } from "react-native";
-import Sound from "react-native-nitro-sound";
+import Sound, {
+	AudioEncoderAndroidType,
+	type AudioSet,
+	AudioSourceAndroidType,
+	AVEncoderAudioQualityIOSType,
+} from "react-native-nitro-sound";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ItemToRemoveCard } from "../components/ItemToRemoveCard";
 import type { RootStackParamList } from "../navigation/AppNavigator";
@@ -193,22 +198,52 @@ export const OutputScreen: React.FC<OutputScreenProps> = ({ navigation }) => {
 				return;
 			}
 
-			const result = await Sound.startRecorder();
+			// Configure audio settings optimized for voice transcription
+			// Using cross-platform settings that work on both iOS and Android
+			const audioSet = {
+				// Common settings (work on both platforms)
+				AudioSamplingRate: 44100,
+				AudioEncodingBitRate: 128000,
+				AudioChannels: 1, // Mono is better for voice
+				// Android-specific
+				...(Platform.OS === "android" && {
+					AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+					AudioSourceAndroid: AudioSourceAndroidType.MIC,
+				}),
+				// iOS-specific
+				...(Platform.OS === "ios" && {
+					AVSampleRateKeyIOS: 44100,
+					// @ts-ignore - AVFormatIDKeyIOS accepts numeric value for AAC
+					AVFormatIDKeyIOS: 1633772320, // kAudioFormatMPEG4AAC (AAC format)
+					AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+					AVNumberOfChannelsKeyIOS: 1,
+					AVModeIOS: "spokenAudio", // Optimized for speech
+				}),
+			} as AudioSet;
+
+			console.log(
+				"🎤 [OUTPUT] Iniciando gravação com configurações:",
+				audioSet,
+			);
+
+			const result = await Sound.startRecorder(
+				undefined, // Use default path
+				audioSet,
+				false, // meteringEnabled
+			);
 			const path = typeof result === "string" ? result : result;
 			setRecordingPath(path);
 			setIsRecording(true);
 			setRecordTime("00:00");
 
-			Sound.addRecordBackListener(
-				(e: { currentPosition: number }) => {
-					const minutes = Math.floor(e.currentPosition / 1000 / 60);
-					const seconds = Math.floor((e.currentPosition / 1000) % 60);
-					setRecordTime(
-						`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
-					);
-					return;
-				},
-			);
+			Sound.addRecordBackListener((e: { currentPosition: number }) => {
+				const minutes = Math.floor(e.currentPosition / 1000 / 60);
+				const seconds = Math.floor((e.currentPosition / 1000) % 60);
+				setRecordTime(
+					`${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+				);
+				return;
+			});
 		} catch (error) {
 			console.error("Error starting recording:", error);
 			Alert.alert(

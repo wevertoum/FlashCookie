@@ -16,7 +16,7 @@ export enum Unit {
 export interface User {
   id: string;
   email: string;
-  password: string; // Em produção, usar hash
+  password: string;
   createdAt: string;
 }
 
@@ -102,4 +102,3 @@ export interface StockEntry {
   date: string;
   notes?: string;
 }
-

@@ -19,7 +19,7 @@ import {
 } from "@gluestack-ui/themed";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	Alert,
 	KeyboardAvoidingView,
@@ -52,6 +52,14 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 	const [passwordError, setPasswordError] = useState("");
 	const [confirmPasswordError, setConfirmPasswordError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const isMountedRef = useRef(true);
+
+	useEffect(() => {
+		isMountedRef.current = true;
+		return () => {
+			isMountedRef.current = false;
+		};
+	}, []);
 
 	const validateForm = (): boolean => {
 		let isValid = true;
@@ -103,34 +111,70 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 			// RF-001: Check if user already exists
 			const existingUser = UserRepository.getUserByEmail(email.trim());
 			if (existingUser) {
-				Alert.alert("Erro", "Este email já está cadastrado");
 				setIsLoading(false);
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						setTimeout(() => {
+							if (isMountedRef.current) {
+								try {
+									Alert.alert("Erro", "Este email já está cadastrado");
+								} catch (error) {
+									console.warn("Failed to show alert:", error);
+								}
+							}
+						}, 800);
+					});
+				});
 				return;
 			}
 
 			// RF-001, RF-002: Save data in MMKV users table
 			UserRepository.createUser(email.trim(), password);
 
-			Alert.alert(
-				"Sucesso",
-				"Cadastro realizado com sucesso! Faça login para continuar.",
-				[
-					{
-						text: "OK",
-						onPress: () => {
-							// RF-001: After successful registration, redirect to login screen
-							navigation.navigate("Login");
-						},
-					},
-				],
-			);
-		} catch {
-			Alert.alert(
-				"Erro",
-				"Ocorreu um erro ao realizar o cadastro. Tente novamente.",
-			);
-		} finally {
 			setIsLoading(false);
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					setTimeout(() => {
+						if (isMountedRef.current) {
+							try {
+								Alert.alert(
+									"Sucesso",
+									"Cadastro realizado com sucesso! Faça login para continuar.",
+									[
+										{
+											text: "OK",
+											onPress: () => {
+												// RF-001: After successful registration, redirect to login screen
+												navigation.navigate("Login");
+											},
+										},
+									],
+								);
+							} catch (error) {
+								console.warn("Failed to show alert:", error);
+							}
+						}
+					}, 800);
+				});
+			});
+		} catch {
+			setIsLoading(false);
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					setTimeout(() => {
+						if (isMountedRef.current) {
+							try {
+								Alert.alert(
+									"Erro",
+									"Ocorreu um erro ao realizar o cadastro. Tente novamente.",
+								);
+							} catch (error) {
+								console.warn("Failed to show alert:", error);
+							}
+						}
+					}, 800);
+				});
+			});
 		}
 	};
 
