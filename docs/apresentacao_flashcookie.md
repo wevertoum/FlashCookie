@@ -28,11 +28,11 @@ O aplicativo foi criado pensando em **simplicidade e praticidade**, utilizando i
 
 O primeiro passo é criar sua conta no aplicativo. É muito simples: você só precisa informar seu email e criar uma senha.
 
-![Tela de Login](../screenshots/tela_login.png)
+<img src="../screenshots/tela_login.png" alt="Tela de Login" width="400" />
 
 Depois de criar sua conta, você pode fazer login sempre que abrir o app. O aplicativo lembra que você está logado, então não precisa entrar toda vez.
 
-![Tela de Cadastro](../screenshots/tela_cadastro.png)
+<img src="../screenshots/tela_cadastro.png" alt="Tela de Cadastro" width="400" />
 
 **Por que é útil:**
 
@@ -48,7 +48,7 @@ Depois de criar sua conta, você pode fazer login sempre que abrir o app. O apli
 
 Após fazer login, você verá a tela inicial com todas as opções principais do aplicativo. É como um menu principal onde você escolhe o que quer fazer.
 
-![Tela Home](../screenshots/tela_home.png)
+<img src="../screenshots/tela_home.png" alt="Tela Home" width="400" />
 
 **Opções disponíveis:**
 
@@ -74,15 +74,15 @@ Esta é uma das funcionalidades mais poderosas do FlashCookie! Quando você comp
 
 **Passo 1:** Abra a tela de Entrada de Estoque e escolha "Selecionar da Galeria" ou "Capturar Nota Fiscal"
 
-![Tela de Entrada de Estoque](../screenshots/tela_entrada_estoque.png)
+<img src="../screenshots/tela_entrada_estoque.png" alt="Tela de Entrada de Estoque" width="400" />
 
 **Passo 2:** Depois de selecionar a imagem, o app mostra a foto que você escolheu
 
-![Tela de Entrada de Estoque - Imagem Selecionada](../screenshots/tela_entrada_estoque_imagem_selecionada.png)
+<img src="../screenshots/tela_entrada_estoque_imagem_selecionada.png" alt="Tela de Entrada de Estoque - Imagem Selecionada" width="400" />
 
 **Passo 3:** O aplicativo processa a imagem e extrai automaticamente todos os itens da nota fiscal
 
-![Tela de Entrada de Estoque - Itens Extraídos](../screenshots/tela_entrada_estoque_imagem_selecionada_itens_extraidos.png)
+<img src="../screenshots/tela_entrada_estoque_imagem_selecionada_itens_extraidos.png" alt="Tela de Entrada de Estoque - Itens Extraídos" width="400" />
 
 **Por que é útil:**
 
@@ -117,11 +117,11 @@ Quando você vai fazer cookies e precisa usar ingredientes do estoque, você pod
 
 **Passo 2:** Fale naturalmente, por exemplo: _"Vou usar 500 gramas de farinha, 200 gramas de açúcar e 8 ovos"_
 
-![Tela de Saída de Estoque - Gravando Áudio](../screenshots/tela_saida_gravando_audio.png)
+<img src="../screenshots/tela_saida_gravando_audio.png" alt="Tela de Saída de Estoque - Gravando Áudio" width="400" />
 
 **Passo 3:** O aplicativo processa o que você falou e mostra os itens identificados
 
-![Tela de Saída de Estoque - Item Identificado](../screenshots/tela_saida_item_identificado.png)
+<img src="../screenshots/tela_saida_item_identificado.png" alt="Tela de Saída de Estoque - Item Identificado" width="400" />
 
 **Passo 4:** Você confirma cada item e o estoque é atualizado automaticamente
 
@@ -144,7 +144,7 @@ Você está na cozinha preparando uma receita e precisa usar ingredientes. Em ve
 
 Esta tela mostra uma lista completa de tudo que você tem em estoque no momento. É como um inventário sempre atualizado.
 
-![Tela de Estoque](../screenshots/tela_estoque_lista.png)
+<img src="../screenshots/tela_estoque_lista.png" alt="Tela de Estoque" width="400" />
 
 **O que você vê:**
 
@@ -177,11 +177,11 @@ Você pode cadastrar suas receitas de cookies no aplicativo. Pode fazer isso de 
 
 Você pode simplesmente falar os ingredientes da receita e o app identifica tudo automaticamente!
 
-![Tela de Itens Possíveis - Processando Áudio](../screenshots/tela_itens_possiveis_cadastro_receita_processando_audio.png)
+<img src="../screenshots/tela_itens_possiveis_cadastro_receita_processando_audio.png" alt="Tela de Itens Possíveis - Processando Áudio" width="400" />
 
 Depois de processar, o app mostra todos os ingredientes que identificou:
 
-![Tela de Itens Possíveis - Ingredientes Identificados](../screenshots/tela_itens_possiveis_cadastro_receita_listar_ingredientes_identificados_no_audio.png)
+<img src="../screenshots/tela_itens_possiveis_cadastro_receita_listar_ingredientes_identificados_no_audio.png" alt="Tela de Itens Possíveis - Ingredientes Identificados" width="400" />
 
 **Opção 2: Digitar manualmente**
 
@@ -199,7 +199,7 @@ O aplicativo usa inteligência artificial para analisar:
 
 E então mostra um relatório completo:
 
-![Tela de Itens Possíveis - Relatório Gerado](../screenshots/tela_itens_possiveis_mostrar_relatorio_gerado_pela_ia.png)
+<img src="../screenshots/tela_itens_possiveis_mostrar_relatorio_gerado_pela_ia.png" alt="Tela de Itens Possíveis - Relatório Gerado" width="400" />
 
 **Por que é útil:**
 

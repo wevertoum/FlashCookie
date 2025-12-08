@@ -135,7 +135,7 @@ FlashCookie/
 
 **Descrição**: Tela inicial de autenticação do aplicativo. Permite que o usuário faça login com email e senha cadastrados, ou navegue para a tela de cadastro.
 
-![Tela de Login](./screenshots/tela_login.png)
+<img src="./screenshots/tela_login.png" alt="Tela de Login" width="400" />
 
 **Elementos principais**:
 
@@ -150,7 +150,7 @@ FlashCookie/
 
 **Descrição**: Tela para criação de nova conta de usuário. Solicita email, senha e confirmação de senha para cadastro.
 
-![Tela de Cadastro](./screenshots/tela_cadastro.png)
+<img src="./screenshots/tela_cadastro.png" alt="Tela de Cadastro" width="400" />
 
 **Elementos principais**:
 
@@ -166,7 +166,7 @@ FlashCookie/
 
 **Descrição**: Tela principal do aplicativo após login. Apresenta menu de navegação com acesso a todas as funcionalidades principais.
 
-![Tela Home](./screenshots/tela_home.png)
+<img src="./screenshots/tela_home.png" alt="Tela Home" width="400" />
 
 **Elementos principais**:
 
@@ -186,15 +186,15 @@ FlashCookie/
 
 **Estado inicial - Seleção de imagem:**
 
-![Tela de Entrada de Estoque](./screenshots/tela_entrada_estoque.png)
+<img src="./screenshots/tela_entrada_estoque.png" alt="Tela de Entrada de Estoque" width="400" />
 
 **Com imagem selecionada:**
 
-![Tela de Entrada de Estoque - Imagem Selecionada](./screenshots/tela_entrada_estoque_imagem_selecionada.png)
+<img src="./screenshots/tela_entrada_estoque_imagem_selecionada.png" alt="Tela de Entrada de Estoque - Imagem Selecionada" width="400" />
 
 **Com itens extraídos pela IA:**
 
-![Tela de Entrada de Estoque - Itens Extraídos](./screenshots/tela_entrada_estoque_imagem_selecionada_itens_extraidos.png)
+<img src="./screenshots/tela_entrada_estoque_imagem_selecionada_itens_extraidos.png" alt="Tela de Entrada de Estoque - Itens Extraídos" width="400" />
 
 **Elementos principais**:
 
@@ -214,11 +214,11 @@ FlashCookie/
 
 **Gravando áudio:**
 
-![Tela de Saída de Estoque - Gravando Áudio](./screenshots/tela_saida_gravando_audio.png)
+<img src="./screenshots/tela_saida_gravando_audio.png" alt="Tela de Saída de Estoque - Gravando Áudio" width="400" />
 
 **Com item identificado:**
 
-![Tela de Saída de Estoque - Item Identificado](./screenshots/tela_saida_item_identificado.png)
+<img src="./screenshots/tela_saida_item_identificado.png" alt="Tela de Saída de Estoque - Item Identificado" width="400" />
 
 **Elementos principais**:
 
@@ -235,7 +235,7 @@ FlashCookie/
 
 **Descrição**: Tela de visualização completa do estoque atual. Lista todos os itens cadastrados com suas quantidades e unidades de medida.
 
-![Tela de Estoque](./screenshots/tela_estoque_lista.png)
+<img src="./screenshots/tela_estoque_lista.png" alt="Tela de Estoque" width="400" />
 
 **Elementos principais**:
 
@@ -253,15 +253,15 @@ FlashCookie/
 
 **Processando áudio durante cadastro de receita:**
 
-![Tela de Itens Possíveis - Processando Áudio](./screenshots/tela_itens_possiveis_cadastro_receita_processando_audio.png)
+<img src="./screenshots/tela_itens_possiveis_cadastro_receita_processando_audio.png" alt="Tela de Itens Possíveis - Processando Áudio" width="400" />
 
 **Listando ingredientes identificados no áudio:**
 
-![Tela de Itens Possíveis - Ingredientes Identificados](./screenshots/tela_itens_possiveis_cadastro_receita_listar_ingredientes_identificados_no_audio.png)
+<img src="./screenshots/tela_itens_possiveis_cadastro_receita_listar_ingredientes_identificados_no_audio.png" alt="Tela de Itens Possíveis - Ingredientes Identificados" width="400" />
 
 **Relatório de potencial produtivo gerado pela IA:**
 
-![Tela de Itens Possíveis - Relatório Gerado](./screenshots/tela_itens_possiveis_mostrar_relatorio_gerado_pela_ia.png)
+<img src="./screenshots/tela_itens_possiveis_mostrar_relatorio_gerado_pela_ia.png" alt="Tela de Itens Possíveis - Relatório Gerado" width="400" />
 
 **Elementos principais**:
 
